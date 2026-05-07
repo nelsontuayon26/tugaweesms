@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Grades - {{ $section->name }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>[x-cloak] { display: none !important; }</style>
+</head>
+<body class="bg-slate-50 min-h-screen" x-data="{ mobileOpen: false }">
+
+<!-- Mobile Overlay -->
+<div x-show="mobileOpen"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="mobileOpen = false"
+     class="fixed inset-0 z-40 lg:hidden bg-slate-900/30"
+     style="display: none;"></div>
+
+<!-- Mobile Toggle Button -->
+<button @click="mobileOpen = !mobileOpen"
+        class="fixed top-4 left-4 z-50 lg:hidden w-12 h-12 bg-white rounded-xl shadow flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-colors border border-slate-200">
+    <i class="fas fa-bars text-lg"></i>
+</button>
+
+<div class="flex">
+    @include('teacher.includes.sidebar')
+
+    <main class="lg:ml-72 w-full min-h-screen p-6">
+
+        <!-- Header -->
+        <div class="mb-6">
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-3">
+                <a href="{{ route('teacher.dashboard') }}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <a href="{{ route('teacher.sections.index') }}" class="hover:text-indigo-600 transition-colors">Sections</a>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-slate-700 font-medium">{{ $section->name }}</span>
+                <i class="fas fa-chevron-right text-xs"></i>
+                <span class="text-indigo-600 font-medium">Grades</span>
+            </nav>
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <h1 class="text-2xl font-bold text-slate-900">Grades - {{ $section->name }}</h1>
+                <div class="flex items-center gap-2 bg-white rounded-lg border border-slate-200 p-1.5">
+                    <span class="text-sm text-slate-600 px-2">Quarter:</span>
+                    <select id="quarterSelect" class="bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <option value="1" {{ request('quarter', 1) == 1 ? 'selected' : '' }}>1st Quarter</option>
+                        <option value="2" {{ request('quarter', 1) == 2 ? 'selected' : '' }}>2nd Quarter</option>
+                        <option value="3" {{ request('quarter', 1) == 3 ? 'selected' : '' }}>3rd Quarter</option>
+                        <option value="4" {{ request('quarter', 1) == 4 ? 'selected' : '' }}>4th Quarter</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Grades Modal -->
+        <div id="saveGradesModal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50">
+            <div id="saveModalContent" class="bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 modal-pop relative overflow-hidden">
+                <div id="modalProgressBar" class="absolute top-0 left-0 h-1 bg-slate-200 w-full">
+                    <div id="modalProgressFill" class="h-full w-full"></div>
+                </div>
+                <div id="saveModalSuccess" class="hidden">
+                    <div class="bg-emerald-50 rounded-t-xl p-6 border-b border-emerald-100 text-center">
+                        <div id="successIcon" class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-emerald-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-emerald-900">Saved Successfully!</h3>
+                        <p class="text-sm text-emerald-600 mt-1">Grades have been recorded</p>
+                    </div>
+                    <div class="p-6 text-center">
+                        <p class="text-slate-600 mb-4" id="successMessage">Grades have been saved successfully.</p>
+                        <p class="text-xs text-slate-400 mb-3">Closing in <span id="successCountdown">3</span>s...</p>
+                        <button onclick="closeSaveModal()" class="w-full px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+                <div id="saveModalError" class="hidden">
+                    <div class="bg-red-50 rounded-t-xl p-6 border-b border-red-100 text-center">
+                        <div id="errorIcon" class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-times-circle text-red-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-red-900">Save Failed!</h3>
+                        <p class="text-sm text-red-600 mt-1">Unable to save grades</p>
+                    </div>
+                    <div class="p-6 text-center">
+                        <p class="text-slate-600 mb-4" id="errorMessage">An error occurred while saving grades.</p>
+                        <p class="text-xs text-slate-400 mb-3">Closing in <span id="errorCountdown">3</span>s...</p>
+                        <button onclick="closeSaveModal()" class="w-full px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finalization Result Modal -->
+        <div id="finalizeResultModal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-black/50">
+            <div id="finalizeResultContent" class="bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 modal-pop relative overflow-hidden">
+                <div id="finalizeProgressBar" class="absolute top-0 left-0 h-1 bg-slate-200 w-full">
+                    <div id="finalizeProgressFill" class="h-full w-full"></div>
+                </div>
+                <div id="finalizeResultSuccess" class="hidden">
+                    <div class="bg-emerald-50 rounded-t-xl p-6 border-b border-emerald-100 text-center">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-emerald-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-emerald-900">Finalized Successfully!</h3>
+                        <p class="text-sm text-emerald-600 mt-1">Grades have been locked</p>
+                    </div>
+                    <div class="p-6 text-center">
+                        <p class="text-slate-600 mb-4" id="finalizeSuccessMessage">Grades have been finalized successfully.</p>
+                        <p class="text-xs text-slate-400 mb-3">Closing in <span id="finalizeSuccessCountdown">3</span>s...</p>
+                        <button onclick="closeFinalizeResultModal()" class="w-full px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+                <div id="finalizeResultError" class="hidden">
+                    <div class="bg-red-50 rounded-t-xl p-6 border-b border-red-100 text-center">
+                        <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-times-circle text-red-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-red-900">Finalization Failed!</h3>
+                        <p class="text-sm text-red-600 mt-1">Unable to finalize grades</p>
+                    </div>
+                    <div class="p-6 text-center">
+                        <p class="text-slate-600 mb-4" id="finalizeErrorMessage">An error occurred while finalizing grades.</p>
+                        <p class="text-xs text-slate-400 mb-3">Closing in <span id="finalizeErrorCountdown">3</span>s...</p>
+                        <button onclick="closeFinalizeResultModal()" class="w-full px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locked Warning -->
+        @if(!$isEditable)
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <i class="fas fa-lock text-amber-600 mt-1"></i>
+            <div>
+                <h3 class="font-semibold text-amber-900">Section Locked</h3>
+                <p class="text-sm text-amber-700">
+                    This section has been finalized and is locked. You cannot edit grades, attendance, or core values.
+                    Contact the administrator if you need to make changes.
+                </p>
+                @if($finalization?->grades_finalized_at)
+                <p class="text-xs text-amber-600 mt-1">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    Finalized on: {{ $finalization->grades_finalized_at->format('F d, Y \\a\\t h:i A') }}
+                </p>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        <!-- Subject Selector -->
+        <div class="bg-white rounded-lg border border-slate-200 p-4 mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-900">Select Subject</h3>
+                        <p class="text-sm text-slate-500">Grade Level: <span class="font-medium text-slate-700">{{ $section->gradeLevel->name ?? 'N/A' }}</span></p>
+                    </div>
+                </div>
+                <form method="GET" class="flex flex-col sm:flex-row items-start sm:items-center gap-2" id="subjectForm">
+                    <input type="hidden" name="quarter" id="quarterInput" value="{{ request('quarter', 1) }}">
+                    <input type="hidden" name="grade_level" value="{{ $section->grade_level_id }}">
+                    <div class="relative">
+                        <select name="subject" id="subjectSelect"
+                                class="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 min-w-[200px]">
+                            <option value="">Select Subject</option>
+                            @foreach($filteredSubjects as $subject)
+                                <option value="{{ $subject->id }}" {{ request('subject') == $subject->id ? 'selected' : '' }}>
+                                    {{ $subject->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <i class="fas fa-book-open absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    </div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            id="loadGradesBtn"
+                            {{ !request('subject') ? 'disabled' : '' }}>
+                        Load Grades
+                    </button>
+                </form>
+            </div>
+            @if(isset($selectedGradeLevel))
+            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-graduation-cap text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">Grade Level</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ $selectedGradeLevel->name }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-book text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">Available Subjects</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ $filteredSubjects->count() }} Subjects</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fas fa-users text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500">Students</p>
+                        <p class="text-sm font-semibold text-slate-900">{{ $students->count() }} Students</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+
+        @if(isset($selectedSubject))
+        <!-- Grade Entry Form -->
+        <form method="POST" action="{{ route('teacher.sections.grades.store', $section) }}" class="space-y-6" id="gradeForm">
+            @csrf
+            <input type="hidden" name="subject_id" value="{{ $selectedSubject->id }}">
+            <input type="hidden" name="grade_level_id" value="{{ $selectedGradeLevel->id }}">
+            <input type="hidden" name="quarter" value="{{ request('quarter', 1) }}">
+
+            <!-- Subject Banner -->
+            <div class="bg-indigo-600 rounded-lg p-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-book-open text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-indigo-200 text-xs">Currently Managing</p>
+                        <h2 class="text-lg font-bold">{{ $selectedSubject->name }}</h2>
+                        <p class="text-indigo-200 text-xs">{{ $selectedGradeLevel->name }} &bull; {{ $section->name }} &bull; Quarter {{ request('quarter', 1) }}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-indigo-200 text-xs">Subject Code</p>
+                    <p class="text-lg font-bold">{{ $selectedSubject->code ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <!-- Weight Configuration -->
+            <details class="bg-white rounded-lg border border-slate-200 overflow-hidden" @if($gradeWeights->ww_weight != 40 || $gradeWeights->pt_weight != 40 || $gradeWeights->qe_weight != 20) open @endif>
+                <summary class="px-4 py-3 bg-slate-50 border-b border-slate-100 cursor-pointer flex items-center justify-between select-none list-none">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-sliders-h text-slate-500"></i>
+                        <span class="font-semibold text-slate-900">Component Weights</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded font-medium">WW: <span id="display-ww-weight">{{ $gradeWeights->ww_weight }}</span>%</span>
+                        <span class="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded font-medium">PT: <span id="display-pt-weight">{{ $gradeWeights->pt_weight }}</span>%</span>
+                        <span class="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded font-medium">QE: <span id="display-qe-weight">{{ $gradeWeights->qe_weight }}</span>%</span>
+                        <i class="fas fa-chevron-down text-xs text-slate-400 ml-1 details-chevron transition-transform duration-200"></i>
+                    </div>
+                </summary>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Written Work Weight (%)</label>
+                        <input type="number" name="ww_weight" id="wwWeight" value="{{ $gradeWeights->ww_weight }}" min="0" max="100"
+                               class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold text-slate-700{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}"
+                               onchange="validateWeights()" {{ !$isEditable ? 'disabled' : '' }}>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Performance Task Weight (%)</label>
+                        <input type="number" name="pt_weight" id="ptWeight" value="{{ $gradeWeights->pt_weight }}" min="0" max="100"
+                               class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold text-slate-700{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}"
+                               onchange="validateWeights()" {{ !$isEditable ? 'disabled' : '' }}>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Quarterly Exam Weight (%)</label>
+                        <input type="number" name="qe_weight" id="qeWeight" value="{{ $gradeWeights->qe_weight }}" min="0" max="100"
+                               class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold text-slate-700{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}"
+                               onchange="validateWeights()" {{ !$isEditable ? 'disabled' : '' }}>
+                    </div>
+                </div>
+                <div id="weightWarning" class="hidden px-4 pb-3 text-red-600 text-sm flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Total weight must equal 100%
+                </div>
+                <div class="px-4 pb-4">
+                    <button type="button" onclick="resetWeights()" class="text-sm text-indigo-600 hover:text-indigo-700 font-medium{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                        Reset to Default
+                    </button>
+                </div>
+            </details>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <div class="border-b border-slate-200">
+                    <div class="flex overflow-x-auto">
+                        <button type="button" onclick="showTab('tab-ww')" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap" data-tab="tab-ww">
+                            Written Work
+                        </button>
+                        <button type="button" onclick="showTab('tab-pt')" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap" data-tab="tab-pt">
+                            Performance Tasks
+                        </button>
+                        <button type="button" onclick="showTab('tab-qe')" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap" data-tab="tab-qe">
+                            Quarterly Exam
+                        </button>
+                        <button type="button" onclick="showTab('tab-summary')" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap" data-tab="tab-summary">
+                            Summary
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <!-- Written Work Tab -->
+                    <div id="tab-ww" class="tab-content">
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="addWWColumn()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-sm font-medium flex items-center gap-1{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                <i class="fas fa-plus text-xs"></i> Add Activity
+                            </button>
+                            <button type="button" onclick="removeLastWW()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-sm font-medium flex items-center gap-1{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                <i class="fas fa-minus text-xs"></i> Remove Last
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse" id="wwTable">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200" id="wwHeaderRow">
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 w-12 border-b border-slate-200">#</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 border-b border-slate-200">Student Name</th>
+
+                                        @php $wwTitles = $existingGrades['ww_titles'] ?? []; @endphp
+                                        @php $wwTotalItems = $existingGrades['ww_total_items'] ?? []; @endphp
+
+                                        @for($i = 0; $i < max(3, count($wwTitles)); $i++)
+                                        <th class="px-2 py-2 text-center font-semibold text-slate-700 ww-col-header border-b border-slate-200" data-col="{{ $i + 1 }}">
+                                            <div class="mb-1 text-xs">WW {{ $i + 1 }}</div>
+                                            <input type="text" name="ww_titles[]" class="ww-title w-16 text-center bg-transparent border-b border-slate-300 text-xs mb-1{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" placeholder="Title" value="{{ $wwTitles[$i] ?? '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                            <input type="number" name="ww_total_items[]" class="ww-total-item w-16 text-center bg-slate-50 border border-slate-200 rounded text-xs py-1{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" placeholder="Items" value="{{ $wwTotalItems[$i] ?? 100 }}" min="1" onchange="calculateAllWW()" {{ !$isEditable ? 'disabled' : '' }}>
+                                        </th>
+                                        @endfor
+
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">Total Score</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">PS</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">WS</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="wwTableBody">
+                                    @foreach($students as $index => $student)
+                                    <tr class="hover:bg-slate-50" data-student-id="{{ $student->id }}">
+                                        <td class="px-3 py-2 text-slate-500 font-medium">{{ $index + 1 }}</td>
+                                        <td class="px-3 py-2 font-medium text-slate-900">
+                                            {{ $student->user->last_name }}, {{ $student->user->first_name }}
+                                        </td>
+
+                                        @php $wwKey = $student->id . '_written_work'; @endphp
+                                        @php $wwScores = $existingGrades[$wwKey]['scores'] ?? []; @endphp
+
+                                        @for($i = 0; $i < max(3, count($wwTitles)); $i++)
+                                        <td class="px-2 py-2 text-center ww-col" data-col="{{ $i + 1 }}">
+                                            <input type="number" name="ww[{{ $student->id }}][]" class="ww-score w-16 px-2 py-1.5 text-center rounded-md border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" min="0" value="{{ $wwScores[$i] ?? '' }}" onchange="calculateStudentWW({{ $student->id }})" {{ !$isEditable ? 'disabled' : '' }}>
+                                        </td>
+                                        @endfor
+
+                                        <td class="px-3 py-2 text-center font-semibold text-slate-700">
+                                            <span class="ww-total" id="ww-total-{{ $student->id }}">0</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="ww-ps px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-xs" id="ww-ps-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="ww-ws px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-xs" id="ww-ws-{{ $student->id }}">0.00</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Performance Tasks Tab -->
+                    <div id="tab-pt" class="tab-content hidden">
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="addPTColumn()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-sm font-medium flex items-center gap-1{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                <i class="fas fa-plus text-xs"></i> Add Task
+                            </button>
+                            <button type="button" onclick="removeLastPT()" class="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md text-sm font-medium flex items-center gap-1{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                <i class="fas fa-minus text-xs"></i> Remove Last
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse" id="ptTable">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200" id="ptHeaderRow">
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 w-12 border-b border-slate-200">#</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 border-b border-slate-200">Student Name</th>
+
+                                        @php $ptTitles = $existingGrades['pt_titles'] ?? []; @endphp
+                                        @php $ptTotalItems = $existingGrades['pt_total_items'] ?? []; @endphp
+
+                                        @for($i = 0; $i < max(2, count($ptTitles)); $i++)
+                                        <th class="px-2 py-2 text-center font-semibold text-slate-700 pt-col-header border-b border-slate-200" data-col="{{ $i + 1 }}">
+                                            <div class="mb-1 text-xs">PT {{ $i + 1 }}</div>
+                                            <input type="text" name="pt_titles[]" class="pt-title w-16 text-center bg-transparent border-b border-slate-300 text-xs mb-1{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" placeholder="Title" value="{{ $ptTitles[$i] ?? '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                                            <input type="number" name="pt_total_items[]" class="pt-total-item w-16 text-center bg-slate-50 border border-slate-200 rounded text-xs py-1{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" placeholder="Items" value="{{ $ptTotalItems[$i] ?? 100 }}" min="1" onchange="calculateAllPT()" {{ !$isEditable ? 'disabled' : '' }}>
+                                        </th>
+                                        @endfor
+
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">Total Score</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">PS</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">WS</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="ptTableBody">
+                                    @foreach($students as $index => $student)
+                                    <tr class="hover:bg-slate-50" data-student-id="{{ $student->id }}">
+                                        <td class="px-3 py-2 text-slate-500 font-medium">{{ $index + 1 }}</td>
+                                        <td class="px-3 py-2 font-medium text-slate-900">
+                                            {{ $student->user->last_name }}, {{ $student->user->first_name }}
+                                        </td>
+
+                                        @php $ptKey = $student->id . '_performance_task'; @endphp
+                                        @php $ptScores = $existingGrades[$ptKey]['scores'] ?? []; @endphp
+
+                                        @for($i = 0; $i < max(2, count($ptTitles)); $i++)
+                                        <td class="px-2 py-2 text-center pt-col" data-col="{{ $i + 1 }}">
+                                            <input type="number" name="pt[{{ $student->id }}][]" class="pt-score w-16 px-2 py-1.5 text-center rounded-md border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" min="0" value="{{ $ptScores[$i] ?? '' }}" onchange="calculateStudentPT({{ $student->id }})" {{ !$isEditable ? 'disabled' : '' }}>
+                                        </td>
+                                        @endfor
+
+                                        <td class="px-3 py-2 text-center font-semibold text-slate-700">
+                                            <span class="pt-total" id="pt-total-{{ $student->id }}">0</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="pt-ps px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-xs" id="pt-ps-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="pt-ws px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-xs" id="pt-ws-{{ $student->id }}">0.00</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Quarterly Exam Tab -->
+                    <div id="tab-qe" class="tab-content hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-slate-600">Total Items:</span>
+                                <input type="number" id="qeTotal" value="{{ $existingGrades['qe_total_items'] ?? 100 }}" class="w-20 px-3 py-1.5 rounded-md border border-slate-200 text-sm font-semibold text-slate-700{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" onchange="updateQETotalItems(this.value)" {{ !$isEditable ? 'disabled' : '' }}>
+                            </div>
+                            <input type="hidden" name="qe_total_items" id="qeTotalItemsInput" value="{{ $existingGrades['qe_total_items'] ?? 100 }}">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse" id="qeTable">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200">
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 w-12 border-b border-slate-200">#</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 border-b border-slate-200">Student Name</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">Raw Score</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">PS</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-50 border-b border-slate-200">WS</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="qeTableBody">
+                                    @foreach($students as $index => $student)
+                                    <tr class="hover:bg-slate-50" data-student-id="{{ $student->id }}">
+                                        <td class="px-3 py-2 text-slate-500 font-medium">{{ $index + 1 }}</td>
+                                        <td class="px-3 py-2 font-medium text-slate-900">
+                                            {{ $student->user->last_name }}, {{ $student->user->first_name }}
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            @php $qeKey = $student->id . '_quarterly_exam'; @endphp
+                                            <input type="number" name="qe[{{ $student->id }}]" class="qe-score w-20 px-3 py-1.5 text-center rounded-md border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-semibold{{ !$isEditable ? ' bg-slate-100 cursor-not-allowed' : '' }}" min="0" value="{{ $existingGrades[$qeKey]['total_score'] ?? '' }}" onchange="calculateStudentQE({{ $student->id }})" {{ !$isEditable ? 'disabled' : '' }}>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="qe-ps px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-xs" id="qe-ps-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="qe-ws px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold text-xs" id="qe-ws-{{ $student->id }}">0.00</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary Tab -->
+                    <div id="tab-summary" class="tab-content hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse" id="summaryTable">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200">
+                                        <th class="px-3 py-2 text-left font-semibold text-slate-700 border-b border-slate-200">Student</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">WW ({{ $gradeWeights->ww_weight }}%)</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">PT ({{ $gradeWeights->pt_weight }}%)</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">QE ({{ $gradeWeights->qe_weight }}%)</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">Initial Grade</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 bg-slate-100 border-b border-slate-200">Transmuted Grade</th>
+                                        <th class="px-3 py-2 text-center font-semibold text-slate-700 border-b border-slate-200">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="summaryTableBody">
+                                    @foreach($students as $student)
+                                    <tr class="hover:bg-slate-50" data-student-id="{{ $student->id }}">
+                                        <td class="px-3 py-2 font-medium text-slate-900">{{ $student->user->last_name }}, {{ $student->user->first_name }}</td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="final-ww" id="final-ww-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="final-pt" id="final-pt-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="final-qe" id="final-qe-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center font-semibold">
+                                            <span class="initial-grade" id="initial-grade-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center bg-slate-50">
+                                            <span class="transmuted-grade text-lg font-bold" id="transmuted-{{ $student->id }}">0.00</span>
+                                        </td>
+                                        <td class="px-3 py-2 text-center">
+                                            <span class="remarks px-2 py-0.5 rounded-full text-xs font-bold" id="remarks-{{ $student->id }}">-</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="flex flex-col sm:flex-row justify-end gap-3">
+                <button type="button" onclick="calculateAllGrades()" class="px-5 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 justify-center{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                    <i class="fas fa-sync-alt"></i> Recalculate All
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors flex items-center gap-2 justify-center{{ !$isEditable ? ' opacity-50 cursor-not-allowed' : '' }}" {{ !$isEditable ? 'disabled' : '' }}>
+                    <i class="fas fa-save"></i> Save All Grades
+                </button>
+            </div>
+        </form>
+
+        <!-- Finalize Section -->
+        @if($isEditable && !$finalization?->grades_finalized)
+        <div class="mt-6 bg-white rounded-lg border border-slate-200 p-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-lock text-amber-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-slate-900">Finalize Grades</h3>
+                        <p class="text-sm text-slate-500">Once finalized, grades for this section will be locked and cannot be edited.</p>
+                    </div>
+                </div>
+                <button type="button"
+                        onclick="showFinalizeGradesModal()"
+                        class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 justify-center">
+                    <i class="fas fa-check-circle"></i> Finalize Grades
+                </button>
+            </div>
+        </div>
+
+        <!-- Finalize Grades Modal -->
+        <div id="finalizeGradesModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 modal-pop">
+                <div class="bg-amber-50 rounded-t-xl p-5 border-b border-amber-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-900">Finalize Grades?</h3>
+                            <p class="text-sm text-amber-600">This action cannot be undone</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="bg-slate-50 rounded-lg p-4 mb-4 space-y-2">
+                        <p class="text-sm text-slate-700">
+                            <i class="fas fa-info-circle text-amber-500 mr-2"></i>
+                            You are about to finalize grades for <strong>{{ $section->name }}</strong>.
+                        </p>
+                        <div class="text-sm text-slate-600 space-y-1 ml-6">
+                            <p><i class="fas fa-check text-emerald-500 mr-2"></i>All grade entries will be locked</p>
+                            <p><i class="fas fa-check text-emerald-500 mr-2"></i>Students' report cards will be generated</p>
+                            <p><i class="fas fa-check text-emerald-500 mr-2"></i>Admin assistance required for any changes</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                        <p class="text-sm text-amber-800">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <strong>Important:</strong> Make sure you have entered grades for <strong>ALL subjects</strong> and <strong>ALL quarters (Q1-Q4)</strong> before finalizing.
+                        </p>
+                    </div>
+                    <form id="finalizeGradesForm" action="{{ route('teacher.sections.grades.finalize', $section) }}" method="POST">
+                        @csrf
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="button"
+                                    onclick="document.getElementById('finalizeGradesModal').classList.add('hidden')"
+                                    class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg transition-colors">
+                                <i class="fas fa-lock mr-2"></i>Yes, Finalize Grades
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finalizing Loading Modal -->
+        <div id="finalizingModal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black/60">
+            <div class="bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 p-6 text-center">
+                <div class="w-12 h-12 rounded-full border-4 border-amber-200 border-t-amber-500 animate-spin mx-auto mb-4"></div>
+                <h3 class="text-base font-semibold text-slate-800">Finalizing Grades...</h3>
+                <p class="text-sm text-slate-500 mt-1">Please wait while we lock your grade records</p>
+            </div>
+        </div>
+
+        <script>
+        function showFinalizeGradesModal() {
+            document.getElementById('finalizeGradesModal').classList.remove('hidden');
+        }
+
+        // Handle finalize form submission via AJAX
+        document.getElementById('finalizeGradesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Hide confirmation modal and show loading
+            document.getElementById('finalizeGradesModal').classList.add('hidden');
+            document.getElementById('finalizingModal').classList.remove('hidden');
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    }
+                });
+
+                // Handle 419 CSRF token expired error
+                if (response.status === 419) {
+                    document.getElementById('finalizingModal').classList.add('hidden');
+                    showFinalizeResultModal('error', 'Session expired. Please refresh the page and try again.');
+                    return;
+                }
+
+                const data = await response.json().catch(() => ({
+                    success: response.ok,
+                    message: response.ok ? 'Grades finalized successfully!' : 'Failed to finalize grades'
+                }));
+
+                // Hide loading modal
+                document.getElementById('finalizingModal').classList.add('hidden');
+
+                if (data.success) {
+                    showFinalizeResultModal('success', data.message || 'Grades finalized successfully!');
+                    // Reload page after showing success
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showFinalizeResultModal('error', data.message || 'Failed to finalize grades');
+                }
+            } catch (error) {
+                console.error('Finalize error:', error);
+                document.getElementById('finalizingModal').classList.add('hidden');
+                showFinalizeResultModal('error', 'Network error. Please try again.');
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('finalizeGradesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+        </script>
+        @elseif($finalization?->grades_finalized)
+        <div class="mt-6 bg-emerald-50 rounded-lg border border-emerald-200 p-4 flex items-start gap-3">
+            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-check-double text-emerald-600"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-emerald-900">Grades Finalized</h3>
+                <p class="text-sm text-emerald-700">
+                    Grades for this section were finalized on {{ $finalization->grades_finalized_at?->format('F d, Y \\a\\t h:i A') }}.
+                    Contact the administrator if you need to make changes.
+                </p>
+            </div>
+        </div>
+        @endif
+        @else
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg border border-slate-200 p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
+                <i class="fas fa-book-open text-slate-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-1">Select a Subject</h3>
+            <p class="text-sm text-slate-500 max-w-md mx-auto">Choose a subject from the dropdown above to start managing student grades for {{ $selectedGradeLevel->name ?? 'this section' }}.</p>
+        </div>
+        @endif
+    </main>
+</div>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    details > summary {
+        list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+        display: none;
+    }
+    details[open] .details-chevron {
+        transform: rotate(180deg);
+    }
+
+    @keyframes modal-pop {
+        0% { opacity: 0; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    .modal-pop {
+        animation: modal-pop 0.3s ease-out;
+    }
+    @keyframes shake-animation {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    .shake-animation {
+        animation: shake-animation 0.5s ease-in-out;
+    }
+
+    /* Icon exit animations */
+    @keyframes icon-exit-success {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+    @keyframes icon-exit-error {
+        0% { transform: scale(1); opacity: 1; }
+        25% { transform: scale(1.1) rotate(-10deg); }
+        50% { transform: scale(1.1) rotate(10deg); }
+        75% { transform: scale(1.1) rotate(-10deg); }
+        100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+    .icon-exit {
+        animation: icon-exit-success 0.3s ease-in forwards;
+    }
+    #errorIcon.icon-exit {
+        animation: icon-exit-error 0.3s ease-in forwards;
+    }
+</style>
+
+<script>
+    // Tab switching
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.dataset.tab === tabId) {
+                btn.classList.remove('border-transparent', 'text-slate-500');
+                btn.classList.add('border-indigo-600', 'text-indigo-600');
+            } else {
+                btn.classList.remove('border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            }
+        });
+    }
+
+    // Store existing grades data from PHP
+    @php
+    $existingGradesJson = json_encode($existingGrades ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+    @endphp
+    const existingGrades = {!! $existingGradesJson !!};
+    let wwColCount = Math.max(3, (existingGrades['ww_titles'] || []).length);
+    let ptColCount = Math.max(2, (existingGrades['pt_titles'] || []).length);
+
+    // DepEd Transmutation Table
+    const transmutationTable = [
+        {range: [100, 100], grade: 100},
+        {range: [98.40, 99.99], grade: 99},
+        {range: [96.80, 98.39], grade: 98},
+        {range: [95.20, 96.79], grade: 97},
+        {range: [93.60, 95.19], grade: 96},
+        {range: [92.00, 93.59], grade: 95},
+        {range: [90.40, 91.99], grade: 94},
+        {range: [88.80, 90.39], grade: 93},
+        {range: [87.20, 88.79], grade: 92},
+        {range: [85.60, 87.19], grade: 91},
+        {range: [84.00, 85.59], grade: 90},
+        {range: [82.40, 83.99], grade: 89},
+        {range: [80.80, 82.39], grade: 88},
+        {range: [79.20, 80.79], grade: 87},
+        {range: [77.60, 79.19], grade: 86},
+        {range: [76.00, 77.59], grade: 85},
+        {range: [74.40, 75.99], grade: 84},
+        {range: [72.80, 74.39], grade: 83},
+        {range: [71.20, 72.79], grade: 82},
+        {range: [69.60, 71.19], grade: 81},
+        {range: [68.00, 69.59], grade: 80},
+        {range: [66.40, 67.99], grade: 79},
+        {range: [64.80, 66.39], grade: 78},
+        {range: [63.20, 64.79], grade: 77},
+        {range: [61.60, 63.19], grade: 76},
+        {range: [60.00, 61.59], grade: 75},
+        {range: [56.00, 59.99], grade: 74},
+        {range: [52.00, 55.99], grade: 73},
+        {range: [48.00, 51.99], grade: 72},
+        {range: [44.00, 47.99], grade: 71},
+        {range: [40.00, 43.99], grade: 70},
+        {range: [36.00, 39.99], grade: 69},
+        {range: [32.00, 35.99], grade: 68},
+        {range: [28.00, 31.99], grade: 67},
+        {range: [24.00, 27.99], grade: 66},
+        {range: [20.00, 23.99], grade: 65},
+        {range: [16.00, 19.99], grade: 64},
+        {range: [12.00, 15.99], grade: 63},
+        {range: [8.00, 11.99], grade: 62},
+        {range: [4.00, 7.99], grade: 61},
+        {range: [0, 3.99], grade: 60}
+    ];
+
+    function transmuteGrade(initialGrade) {
+        for (let item of transmutationTable) {
+            if (initialGrade >= item.range[0] && initialGrade <= item.range[1]) {
+                return item.grade;
+            }
+        }
+        return 60;
+    }
+
+    function getRemarks(grade) {
+        if (grade >= 75) return {text: 'Passed', class: 'bg-emerald-100 text-emerald-700'};
+        if (grade >= 70) return {text: 'Almost Passed', class: 'bg-amber-100 text-amber-700'};
+        return {text: 'Failed', class: 'bg-red-100 text-red-700'};
+    }
+
+    function validateWeights() {
+        const ww = parseFloat(document.getElementById('wwWeight').value) || 0;
+        const pt = parseFloat(document.getElementById('ptWeight').value) || 0;
+        const qe = parseFloat(document.getElementById('qeWeight').value) || 0;
+        const total = ww + pt + qe;
+
+        const warning = document.getElementById('weightWarning');
+        if (Math.round(total) !== 100) {
+            warning.classList.remove('hidden');
+        } else {
+            warning.classList.add('hidden');
+            // Auto-recalculate all grades when weights are valid (100%)
+            calculateAllGrades();
+            // Update displayed weights on the page
+            updateWeightDisplays(ww, pt, qe);
+        }
+    }
+
+    // Update all weight displays on the page
+    function updateWeightDisplays(ww, pt, qe) {
+        // Update info cards
+        const displayWW = document.getElementById('display-ww-weight');
+        const displayPT = document.getElementById('display-pt-weight');
+        const displayQE = document.getElementById('display-qe-weight');
+        if (displayWW) displayWW.textContent = ww + '%';
+        if (displayPT) displayPT.textContent = pt + '%';
+        if (displayQE) displayQE.textContent = qe + '%';
+
+        // Update summary table headers
+        const summaryHeaders = document.querySelectorAll('#summaryTable thead th');
+        if (summaryHeaders.length >= 6) {
+            summaryHeaders[1].textContent = `WW (${ww}%)`;
+            summaryHeaders[2].textContent = `PT (${pt}%)`;
+            summaryHeaders[3].textContent = `QE (${qe}%)`;
+        }
+    }
+
+    function resetWeights() {
+        document.getElementById('wwWeight').value = 40;
+        document.getElementById('ptWeight').value = 40;
+        document.getElementById('qeWeight').value = 20;
+        document.getElementById('weightWarning').classList.add('hidden');
+        calculateAllGrades();
+        updateWeightDisplays(40, 40, 20);
+    }
+
+    // Written Work Calculations with individual total items
+    function calculateStudentWW(studentId) {
+        const row = document.querySelector(`#wwTableBody tr[data-student-id="${studentId}"]`);
+        if (!row) return;
+
+        const scoreInputs = row.querySelectorAll('.ww-score');
+        const totalItemInputs = document.querySelectorAll('#wwHeaderRow .ww-total-item');
+
+        let totalScore = 0;
+        let totalPossible = 0;
+        let count = 0;
+
+        scoreInputs.forEach((input, index) => {
+            if (input.value && input.value !== '') {
+                const score = parseFloat(input.value) || 0;
+                const totalItems = totalItemInputs[index] ? (parseFloat(totalItemInputs[index].value) || 100) : 100;
+
+                totalScore += score;
+                totalPossible += totalItems;
+                count++;
+            }
+        });
+
+        const ps = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
+        const wwWeight = parseFloat(document.getElementById('wwWeight').value) || 40;
+        const ws = (ps * (wwWeight / 100)).toFixed(2);
+
+        const totalEl = document.getElementById(`ww-total-${studentId}`);
+        const psEl = document.getElementById(`ww-ps-${studentId}`);
+        const wsEl = document.getElementById(`ww-ws-${studentId}`);
+
+        if (totalEl) totalEl.textContent = totalScore.toFixed(0) + ' / ' + totalPossible;
+        if (psEl) psEl.textContent = ps.toFixed(2);
+        if (wsEl) wsEl.textContent = ws;
+
+        calculateFinalGrade(studentId);
+    }
+
+    function calculateAllWW() {
+        document.querySelectorAll('#wwTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            if (studentId) calculateStudentWW(studentId);
+        });
+    }
+
+    // Performance Task Calculations with individual total items
+    function calculateStudentPT(studentId) {
+        const row = document.querySelector(`#ptTableBody tr[data-student-id="${studentId}"]`);
+        if (!row) return;
+
+        const scoreInputs = row.querySelectorAll('.pt-score');
+        const totalItemInputs = document.querySelectorAll('#ptHeaderRow .pt-total-item');
+
+        let totalScore = 0;
+        let totalPossible = 0;
+        let count = 0;
+
+        scoreInputs.forEach((input, index) => {
+            if (input.value && input.value !== '') {
+                const score = parseFloat(input.value) || 0;
+                const totalItems = totalItemInputs[index] ? (parseFloat(totalItemInputs[index].value) || 100) : 100;
+
+                totalScore += score;
+                totalPossible += totalItems;
+                count++;
+            }
+        });
+
+        const ps = totalPossible > 0 ? (totalScore / totalPossible) * 100 : 0;
+        const ptWeight = parseFloat(document.getElementById('ptWeight').value) || 40;
+        const ws = (ps * (ptWeight / 100)).toFixed(2);
+
+        const totalEl = document.getElementById(`pt-total-${studentId}`);
+        const psEl = document.getElementById(`pt-ps-${studentId}`);
+        const wsEl = document.getElementById(`pt-ws-${studentId}`);
+
+        if (totalEl) totalEl.textContent = totalScore.toFixed(0) + ' / ' + totalPossible;
+        if (psEl) psEl.textContent = ps.toFixed(2);
+        if (wsEl) wsEl.textContent = ws;
+
+        calculateFinalGrade(studentId);
+    }
+
+    function calculateAllPT() {
+        document.querySelectorAll('#ptTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            if (studentId) calculateStudentPT(studentId);
+        });
+    }
+
+    // Quarterly Exam Calculations
+    function calculateStudentQE(studentId) {
+        const row = document.querySelector(`#qeTableBody tr[data-student-id="${studentId}"]`);
+        if (!row) return;
+
+        const input = row.querySelector('.qe-score');
+        if (!input) return;
+
+        const score = parseFloat(input.value) || 0;
+        const totalItems = parseFloat(document.getElementById('qeTotal').value) || 100;
+        const ps = (score / totalItems) * 100;
+        const qeWeight = parseFloat(document.getElementById('qeWeight').value) || 20;
+        const ws = (ps * (qeWeight / 100)).toFixed(2);
+
+        const psEl = document.getElementById(`qe-ps-${studentId}`);
+        const wsEl = document.getElementById(`qe-ws-${studentId}`);
+
+        if (psEl) psEl.textContent = ps.toFixed(2);
+        if (wsEl) wsEl.textContent = ws;
+
+        calculateFinalGrade(studentId);
+    }
+
+    function calculateAllQE() {
+        document.querySelectorAll('#qeTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            if (studentId) calculateStudentQE(studentId);
+        });
+    }
+
+    // NEW FUNCTION: Update QE Total Items and sync with hidden input
+    function updateQETotalItems(value) {
+        document.getElementById('qeTotalItemsInput').value = value;
+        calculateAllQE();
+    }
+
+    // Final Grade Calculation
+    function calculateFinalGrade(studentId) {
+        const wwEl = document.getElementById(`ww-ws-${studentId}`);
+        const ptEl = document.getElementById(`pt-ws-${studentId}`);
+        const qeEl = document.getElementById(`qe-ws-${studentId}`);
+
+        const ww = wwEl ? parseFloat(wwEl.textContent) || 0 : 0;
+        const pt = ptEl ? parseFloat(ptEl.textContent) || 0 : 0;
+        const qe = qeEl ? parseFloat(qeEl.textContent) || 0 : 0;
+
+        const initialGrade = ww + pt + qe;
+        const transmuted = transmuteGrade(initialGrade);
+        const remarks = getRemarks(transmuted);
+
+        const finalWwEl = document.getElementById(`final-ww-${studentId}`);
+        const finalPtEl = document.getElementById(`final-pt-${studentId}`);
+        const finalQeEl = document.getElementById(`final-qe-${studentId}`);
+        const initialEl = document.getElementById(`initial-grade-${studentId}`);
+        const transmutedEl = document.getElementById(`transmuted-${studentId}`);
+        const remarksEl = document.getElementById(`remarks-${studentId}`);
+
+        if (finalWwEl) finalWwEl.textContent = ww.toFixed(2);
+        if (finalPtEl) finalPtEl.textContent = pt.toFixed(2);
+        if (finalQeEl) finalQeEl.textContent = qe.toFixed(2);
+        if (initialEl) initialEl.textContent = initialGrade.toFixed(2);
+
+        if (transmutedEl) {
+            transmutedEl.textContent = transmuted.toFixed(0);
+            transmutedEl.className = 'transmuted-grade text-xl font-bold ';
+            if (transmuted >= 90) transmutedEl.classList.add('text-emerald-600');
+            else if (transmuted >= 75) transmutedEl.classList.add('text-blue-600');
+            else transmutedEl.classList.add('text-red-600');
+        }
+
+        if (remarksEl) {
+            remarksEl.textContent = remarks.text;
+            remarksEl.className = `remarks px-3 py-1 rounded-full text-xs font-bold ${remarks.class}`;
+        }
+    }
+
+    function calculateAllGrades() {
+        document.querySelectorAll('#summaryTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            if (studentId) {
+                calculateStudentWW(studentId);
+                calculateStudentPT(studentId);
+                calculateStudentQE(studentId);
+            }
+        });
+    }
+
+    // Dynamic Column Management for Written Work with total items
+    function addWWColumn(title = '', totalItems = 100) {
+        wwColCount++;
+        const headerRow = document.getElementById('wwHeaderRow');
+
+        // Add header with title and total items inputs
+        const newTh = document.createElement('th');
+        newTh.className = 'px-2 py-2 text-center font-semibold text-slate-700 ww-col-header border-b border-slate-200';
+        newTh.setAttribute('data-col', wwColCount);
+        newTh.innerHTML = `
+            <div class="mb-1 text-xs">WW ${wwColCount}</div>
+            <input type="text" name="ww_titles[]" class="ww-title w-16 text-center bg-transparent border-b border-slate-300 text-xs mb-1" placeholder="Title" value="${title}">
+            <input type="number" name="ww_total_items[]" class="ww-total-item w-16 text-center bg-slate-50 border border-slate-200 rounded text-xs py-1" placeholder="Items" value="${totalItems}" min="1" onchange="calculateAllWW()">
+        `;
+
+        const totalTh = headerRow.querySelector('th:nth-last-child(3)');
+        headerRow.insertBefore(newTh, totalTh);
+
+        // Add cells to each row
+        document.querySelectorAll('#wwTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            const newTd = document.createElement('td');
+            newTd.className = 'px-2 py-2 text-center ww-col';
+            newTd.setAttribute('data-col', wwColCount);
+            newTd.innerHTML = `<input type="number" name="ww[${studentId}][]" class="ww-score w-16 px-2 py-1.5 text-center rounded-md border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all" min="0" onchange="calculateStudentWW(${studentId})">`;
+
+            const totalTd = row.querySelector('td:nth-last-child(3)');
+            row.insertBefore(newTd, totalTd);
+        });
+    }
+
+    function removeLastWW() {
+        if (wwColCount <= 1) return;
+
+        document.querySelectorAll(`#wwTable .ww-col-header[data-col="${wwColCount}"], #wwTable .ww-col[data-col="${wwColCount}"]`).forEach(el => {
+            el.remove();
+        });
+        wwColCount--;
+        calculateAllWW();
+    }
+
+    // Dynamic Column Management for Performance Tasks with total items
+    function addPTColumn(title = '', totalItems = 100) {
+        ptColCount++;
+        const headerRow = document.getElementById('ptHeaderRow');
+
+        const newTh = document.createElement('th');
+        newTh.className = 'px-2 py-2 text-center font-semibold text-slate-700 pt-col-header border-b border-slate-200';
+        newTh.setAttribute('data-col', ptColCount);
+        newTh.innerHTML = `
+            <div class="mb-1 text-xs">PT ${ptColCount}</div>
+            <input type="text" name="pt_titles[]" class="pt-title w-16 text-center bg-transparent border-b border-slate-300 text-xs mb-1" placeholder="Title" value="${title}">
+            <input type="number" name="pt_total_items[]" class="pt-total-item w-16 text-center bg-slate-50 border border-slate-200 rounded text-xs py-1" placeholder="Items" value="${totalItems}" min="1" onchange="calculateAllPT()">
+        `;
+
+        const totalTh = headerRow.querySelector('th:nth-last-child(3)');
+        headerRow.insertBefore(newTh, totalTh);
+
+        document.querySelectorAll('#ptTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            const newTd = document.createElement('td');
+            newTd.className = 'px-2 py-2 text-center pt-col';
+            newTd.setAttribute('data-col', ptColCount);
+            newTd.innerHTML = `<input type="number" name="pt[${studentId}][]" class="pt-score w-16 px-2 py-1.5 text-center rounded-md border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all" min="0" onchange="calculateStudentPT(${studentId})">`;
+
+            const totalTd = row.querySelector('td:nth-last-child(3)');
+            row.insertBefore(newTd, totalTd);
+        });
+    }
+
+    function removeLastPT() {
+        if (ptColCount <= 1) return;
+
+        document.querySelectorAll(`#ptTable .pt-col-header[data-col="${ptColCount}"], #ptTable .pt-col[data-col="${ptColCount}"]`).forEach(el => {
+            el.remove();
+        });
+        ptColCount--;
+        calculateAllPT();
+    }
+
+    // Populate existing grades on page load
+    function populateExistingGrades() {
+        if (!existingGrades || Object.keys(existingGrades).length === 0) return;
+
+        // Populate Written Work titles and total items
+        if (existingGrades['ww_titles'] && existingGrades['ww_titles'].length > 3) {
+            const titles = existingGrades['ww_titles'];
+            const totalItems = existingGrades['ww_total_items'] || [];
+            for (let i = 3; i < titles.length; i++) {
+                addWWColumn(titles[i], totalItems[i] || 100);
+            }
+        }
+
+        // Set titles and total items for existing WW columns
+        if (existingGrades['ww_titles']) {
+            const titleInputs = document.querySelectorAll('#wwHeaderRow .ww-title');
+            const totalItemInputs = document.querySelectorAll('#wwHeaderRow .ww-total-item');
+            existingGrades['ww_titles'].forEach((title, index) => {
+                if (titleInputs[index]) titleInputs[index].value = title;
+                if (totalItemInputs[index]) totalItemInputs[index].value = existingGrades['ww_total_items']?.[index] || 100;
+            });
+        }
+
+        // Populate Performance Task titles and total items
+        if (existingGrades['pt_titles'] && existingGrades['pt_titles'].length > 2) {
+            const titles = existingGrades['pt_titles'];
+            const totalItems = existingGrades['pt_total_items'] || [];
+            for (let i = 2; i < titles.length; i++) {
+                addPTColumn(titles[i], totalItems[i] || 100);
+            }
+        }
+
+        // Set titles and total items for existing PT columns
+        if (existingGrades['pt_titles']) {
+            const titleInputs = document.querySelectorAll('#ptHeaderRow .pt-title');
+            const totalItemInputs = document.querySelectorAll('#ptHeaderRow .pt-total-item');
+            existingGrades['pt_titles'].forEach((title, index) => {
+                if (titleInputs[index]) titleInputs[index].value = title;
+                if (totalItemInputs[index]) totalItemInputs[index].value = existingGrades['pt_total_items']?.[index] || 100;
+            });
+        }
+
+        // Populate Written Work grades
+        document.querySelectorAll('#wwTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            const key = `${studentId}_written_work`;
+
+            if (existingGrades[key] && existingGrades[key].scores) {
+                const scores = existingGrades[key].scores;
+                const inputs = row.querySelectorAll('.ww-score');
+
+                scores.forEach((score, index) => {
+                    if (inputs[index]) {
+                        inputs[index].value = score;
+                    } else if (index >= inputs.length) {
+                        while (inputs.length <= index) {
+                            const titles = existingGrades['ww_titles'] || [];
+                            const totalItems = existingGrades['ww_total_items'] || [];
+                            addWWColumn(titles[inputs.length] || '', totalItems[inputs.length] || 100);
+                        }
+                        const newInputs = row.querySelectorAll('.ww-score');
+                        if (newInputs[index]) newInputs[index].value = score;
+                    }
+                });
+            }
+        });
+
+        // Populate Performance Task grades
+        document.querySelectorAll('#ptTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            const key = `${studentId}_performance_task`;
+
+            if (existingGrades[key] && existingGrades[key].scores) {
+                const scores = existingGrades[key].scores;
+                const inputs = row.querySelectorAll('.pt-score');
+
+                scores.forEach((score, index) => {
+                    if (inputs[index]) {
+                        inputs[index].value = score;
+                    } else if (index >= inputs.length) {
+                        while (inputs.length <= index) {
+                            const titles = existingGrades['pt_titles'] || [];
+                            const totalItems = existingGrades['pt_total_items'] || [];
+                            addPTColumn(titles[inputs.length] || '', totalItems[inputs.length] || 100);
+                        }
+                        const newInputs = row.querySelectorAll('.pt-score');
+                        if (newInputs[index]) newInputs[index].value = score;
+                    }
+                });
+            }
+        });
+
+        // Populate Quarterly Exam grades
+        document.querySelectorAll('#qeTableBody tr').forEach(row => {
+            const studentId = row.getAttribute('data-student-id');
+            const key = `${studentId}_quarterly_exam`;
+
+            if (existingGrades[key]) {
+                const input = row.querySelector('.qe-score');
+                if (input && existingGrades[key].total_score) {
+                    input.value = existingGrades[key].total_score;
+                }
+            }
+        });
+
+        // Recalculate all grades after populating
+        setTimeout(() => {
+            calculateAllGrades();
+        }, 100);
+    }
+
+    // Quarter selection
+    document.getElementById('quarterSelect')?.addEventListener('change', function() {
+        document.getElementById('quarterInput').value = this.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('quarter', this.value);
+        window.location.href = url.toString();
+    });
+
+    // Enable/disable load button based on subject selection
+    document.getElementById('subjectSelect')?.addEventListener('change', function() {
+        const loadGradesBtn = document.getElementById('loadGradesBtn');
+        if (loadGradesBtn) {
+            loadGradesBtn.disabled = !this.value;
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        populateExistingGrades();
+        calculateAllGrades();
+
+        // Show modal on page load if there's a success/error message
+        @if(session('success'))
+            const successMsg = '{{ session('success') }}';
+            if (successMsg.toLowerCase().includes('finalized')) {
+                showFinalizeResultModal('success', successMsg);
+            } else {
+                showSaveModal('success', successMsg);
+            }
+        @endif
+        @if(session('error'))
+            const errorMsg = '{{ session('error') }}';
+            if (errorMsg.toLowerCase().includes('finalized') || errorMsg.toLowerCase().includes('finalize')) {
+                showFinalizeResultModal('error', errorMsg);
+            } else {
+                showSaveModal('error', errorMsg);
+            }
+        @endif
+    });
+
+    // Sound effects using Web Audio API
+    let audioContext = null;
+
+    function initAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        return audioContext;
+    }
+
+    function playSuccessSound() {
+        const ctx = initAudioContext();
+        const now = ctx.currentTime;
+        const duration = 2.0;
+
+        // Success - pleasant ascending chime with sustain
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now); // A5
+        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.1); // A6
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+        gain.gain.setValueAtTime(0.25, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.start(now);
+        osc.stop(now + duration);
+    }
+
+    function playErrorSound() {
+        const ctx = initAudioContext();
+        const now = ctx.currentTime;
+        const duration = 2.0;
+        const interval = 0.4;
+
+        // First beep
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(400, now);
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(0.25, now + 0.02);
+        gain1.gain.setValueAtTime(0.25, now + 0.1);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + interval);
+        osc1.start(now);
+        osc1.stop(now + interval);
+
+        // Second beep (lower)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(300, now + interval);
+        gain2.gain.setValueAtTime(0, now + interval);
+        gain2.gain.linearRampToValueAtTime(0.25, now + interval + 0.02);
+        gain2.gain.setValueAtTime(0.25, now + interval + 0.1);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + interval * 2);
+        osc2.start(now + interval);
+        osc2.stop(now + interval * 2);
+
+        // Third beep (lowest) - sustains longer
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(200, now + interval * 2);
+        gain3.gain.setValueAtTime(0, now + interval * 2);
+        gain3.gain.linearRampToValueAtTime(0.25, now + interval * 2 + 0.02);
+        gain3.gain.setValueAtTime(0.25, now + interval * 2 + 0.3);
+        gain3.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc3.start(now + interval * 2);
+        osc3.stop(now + duration);
+    }
+
+    // Initialize audio on first user interaction
+    document.addEventListener('click', function initAudio() {
+        initAudioContext();
+        document.removeEventListener('click', initAudio);
+    }, { once: true });
+
+    // Modal functions
+    let modalAutoCloseTimer = null;
+    let modalCountdownInterval = null;
+
+    function showSaveModal(type, message) {
+        const modal = document.getElementById('saveGradesModal');
+        const success = document.getElementById('saveModalSuccess');
+        const error = document.getElementById('saveModalError');
+        const content = document.getElementById('saveModalContent');
+        const progressFill = document.getElementById('modalProgressFill');
+
+        // Clear any existing timers
+        clearTimeout(modalAutoCloseTimer);
+        clearInterval(modalCountdownInterval);
+
+        // Reset icon animations
+        const successIcon = document.getElementById('successIcon');
+        const errorIcon = document.getElementById('errorIcon');
+        if (successIcon) successIcon.classList.remove('icon-exit');
+        if (errorIcon) errorIcon.classList.remove('icon-exit');
+
+        // Reset progress bar
+        if (progressFill) {
+            progressFill.style.transition = 'none';
+            progressFill.style.width = '100%';
+            progressFill.className = 'h-full w-full';
+        }
+
+        modal.classList.remove('hidden');
+        success.classList.add('hidden');
+        error.classList.add('hidden');
+
+        const countdownEl = type === 'success' ? document.getElementById('successCountdown') : document.getElementById('errorCountdown');
+        let countdown = 3;
+        if (countdownEl) countdownEl.textContent = countdown;
+
+        if (type === 'success') {
+            success.classList.remove('hidden');
+            if (progressFill) progressFill.classList.add('bg-emerald-500');
+            if (message) document.getElementById('successMessage').textContent = message;
+            playSuccessSound();
+
+            // Animate progress bar
+            setTimeout(() => {
+                if (progressFill) {
+                    progressFill.style.transition = 'width 3s linear';
+                    progressFill.style.width = '0%';
+                }
+            }, 50);
+
+        } else if (type === 'error') {
+            error.classList.remove('hidden');
+            if (progressFill) progressFill.classList.add('bg-red-500');
+            content.classList.add('shake-animation');
+            setTimeout(() => content.classList.remove('shake-animation'), 500);
+            if (message) document.getElementById('errorMessage').textContent = message;
+            playErrorSound();
+
+            // Animate progress bar
+            setTimeout(() => {
+                if (progressFill) {
+                    progressFill.style.transition = 'width 3s linear';
+                    progressFill.style.width = '0%';
+                }
+            }, 50);
+        }
+
+        // Countdown interval
+        modalCountdownInterval = setInterval(() => {
+            countdown--;
+            if (countdownEl) countdownEl.textContent = countdown;
+            if (countdown <= 0) clearInterval(modalCountdownInterval);
+        }, 1000);
+
+        // Auto-close after 3 seconds
+        modalAutoCloseTimer = setTimeout(() => {
+            closeSaveModal(type);
+        }, 3000);
+    }
+
+    function closeSaveModal(type) {
+        clearTimeout(modalAutoCloseTimer);
+        clearInterval(modalCountdownInterval);
+
+        // Add exit animation to icon
+        const iconId = type === 'success' ? 'successIcon' : (type === 'error' ? 'errorIcon' : null);
+        if (iconId) {
+            const icon = document.getElementById(iconId);
+            if (icon) {
+                icon.classList.add('icon-exit');
+                // Wait for animation before hiding modal
+                setTimeout(() => {
+                    document.getElementById('saveGradesModal').classList.add('hidden');
+                }, 300);
+                return;
+            }
+        }
+
+        document.getElementById('saveGradesModal').classList.add('hidden');
+    }
+
+    // Finalize Result Modal Functions
+    let finalizeModalAutoCloseTimer = null;
+    let finalizeModalCountdownInterval = null;
+
+    function showFinalizeResultModal(type, message) {
+        const modal = document.getElementById('finalizeResultModal');
+        const success = document.getElementById('finalizeResultSuccess');
+        const error = document.getElementById('finalizeResultError');
+        const content = document.getElementById('finalizeResultContent');
+
+        // Clear any existing timers
+        clearTimeout(finalizeModalAutoCloseTimer);
+        clearInterval(finalizeModalCountdownInterval);
+
+        modal.classList.remove('hidden');
+        success.classList.add('hidden');
+        error.classList.add('hidden');
+
+        // Reset progress bar
+        const progressFill = document.getElementById('finalizeProgressFill');
+        progressFill.className = 'h-full w-full';
+
+        let countdown = 3;
+        const countdownEl = type === 'success' ? document.getElementById('finalizeSuccessCountdown') : document.getElementById('finalizeErrorCountdown');
+
+        if (type === 'success') {
+            success.classList.remove('hidden');
+            if (message) document.getElementById('finalizeSuccessMessage').textContent = message;
+            progressFill.classList.add('bg-emerald-500');
+            playSuccessSound();
+        } else if (type === 'error') {
+            error.classList.remove('hidden');
+            content.classList.add('shake-animation');
+            setTimeout(() => content.classList.remove('shake-animation'), 500);
+            if (message) document.getElementById('finalizeErrorMessage').textContent = message;
+            progressFill.classList.add('bg-red-500');
+            playErrorSound();
+        }
+
+        // Animate progress bar
+        setTimeout(() => {
+            progressFill.style.transition = 'width 3s linear';
+            progressFill.style.width = '0%';
+        }, 50);
+
+        // Countdown
+        countdownEl.textContent = countdown;
+        finalizeModalCountdownInterval = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) clearInterval(finalizeModalCountdownInterval);
+        }, 1000);
+
+        // Auto-close after 3 seconds
+        finalizeModalAutoCloseTimer = setTimeout(() => {
+            closeFinalizeResultModal();
+        }, 3000);
+    }
+
+    function closeFinalizeResultModal() {
+        clearTimeout(finalizeModalAutoCloseTimer);
+        clearInterval(finalizeModalCountdownInterval);
+        document.getElementById('finalizeResultModal').classList.add('hidden');
+    }
+</script>
+
+</body>
+</html>

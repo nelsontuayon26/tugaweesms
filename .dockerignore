@@ -1,0 +1,57 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies (will be installed during build)
+node_modules
+vendor
+
+# Development / IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Laravel storage & cache (will be created fresh)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/public/*
+bootstrap/cache/*.php
+
+# Testing
+tests
+phpunit.xml
+phpunit.xml.dist
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation (keep if needed)
+*.md
+!README.md
+
+# Misc
+.editorconfig
+.styleci.yml
+.prettierrc
+.eslintrc
+playwright.config.js
+
+# Build artifacts (will be rebuilt)
+public/build
+public/hot
+
+# Local databases
+*.sqlite
+*.sqlite3

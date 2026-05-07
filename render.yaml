@@ -1,0 +1,100 @@
+services:
+  - type: web
+    name: tessms-app
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    # NOTE: Free tier has ephemeral storage — uploaded files are lost on deploy.
+    # For persistent file uploads, upgrade to a paid plan and uncomment the disk below.
+    # disk:
+    #   name: tessms-storage
+    #   mountPath: /var/www/html/storage/app/public
+    #   sizeGB: 5
+    envVars:
+      # Laravel Core
+      - key: APP_NAME
+        value: "TugaweES SMS"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://tessms-app.onrender.com
+      - key: APP_KEY
+        generateValue: true   # Render will auto-generate a random value
+
+      # Database (MySQL) - SET THESE MANUALLY IN RENDER DASHBOARD
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false           # e.g., your-mysql-host.com
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        sync: false           # e.g., tessms_db
+      - key: DB_USERNAME
+        sync: false           # e.g., tessms_user
+      - key: DB_PASSWORD
+        sync: false           # Your secure password
+
+      # Session / Cache / Queue (use database driver for free tier)
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: true
+      - key: SESSION_DOMAIN
+        value: null
+
+      # Broadcasting (using Pusher for real-time messaging on Render free tier)
+      - key: BROADCAST_CONNECTION
+        value: pusher
+      - key: PUSHER_APP_ID
+        sync: false           # Get from pusher.com dashboard
+      - key: PUSHER_APP_KEY
+        sync: false           # Get from pusher.com dashboard
+      - key: PUSHER_APP_SECRET
+        sync: false           # Get from pusher.com dashboard
+      - key: PUSHER_APP_CLUSTER
+        value: ap1            # Change to your closest cluster (ap1, us2, eu, etc.)
+
+      # Vite build-time vars for Pusher (frontend Echo config)
+      - key: VITE_PUSHER_APP_KEY
+        sync: false           # Same as PUSHER_APP_KEY
+      - key: VITE_PUSHER_HOST
+        value: api-ap1.pusher.com   # Change cluster in URL to match PUSHER_APP_CLUSTER
+      - key: VITE_PUSHER_PORT
+        value: 443
+      - key: VITE_PUSHER_SCHEME
+        value: https
+      - key: VITE_PUSHER_APP_CLUSTER
+        value: ap1            # Change to match PUSHER_APP_CLUSTER
+
+      # Mail (Resend for OTP emails — free tier: 100 emails/day)
+      - key: MAIL_MAILER
+        value: resend
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@your-domain.com   # Update with your verified Resend domain
+      - key: MAIL_FROM_NAME
+        value: "Tugawe Elementary School"
+      - key: RESEND_API_KEY
+        sync: false           # Get from https://resend.com → API Keys
+
+      # PWA / WebPush (SET THESE MANUALLY - generate with php artisan webpush:vapid)
+      - key: VAPID_SUBJECT
+        value: "mailto:admin@example.com"
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+
+      # File Uploads
+      - key: FILESYSTEM_DISK
+        value: local
+
+      # Vite
+      - key: VITE_APP_NAME
+        value: "${APP_NAME}"

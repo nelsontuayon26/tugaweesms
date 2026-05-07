@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Approval</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
+    
+    <div id="loading" class="text-white flex items-center gap-2">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading...
+    </div>
+    
+    <div id="card" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
+        <div class="h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+        <div class="p-8">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-clock text-emerald-600 text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Pending Approval</h2>
+                    <p class="text-xs text-slate-500">Submitted <span id="submitted-time">just now</span></p>
+                </div>
+            </div>
+
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                Your registration is under review. An administrator will verify your enrollment shortly.
+            </p>
+
+            <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-envelope text-indigo-600 text-xs"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-slate-500 text-xs mb-0.5">Notification sent to</p>
+                        <p id="user-email" class="text-slate-700 font-medium truncate">---</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-slate-400 mb-6 px-1">
+                <span>Reference ID</span>
+                <span id="ref-id" class="font-mono text-slate-600">---</span>
+            </div>
+
+            <button onclick="window.location.href='/'" class="w-full py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-700 transition-colors">
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    <div id="error" class="hidden bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation text-red-500 text-2xl"></i>
+        </div>
+        <h2 class="text-lg font-bold text-slate-800 mb-2">Session Expired</h2>
+        <p class="text-slate-600 text-sm mb-6">No pending registration found.</p>
+        <a href="/register" class="inline-block w-full py-2.5 bg-slate-800 text-white rounded-xl text-sm font-medium">
+            Register Again
+        </a>
+    </div>
+
+    <script>
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/pending-user.php');
+                if (!response.ok) throw new Error('No pending data');
+                
+                const data = await response.json();
+                
+                document.getElementById('user-email').textContent = data.email;
+                document.getElementById('ref-id').textContent = data.reference_id;
+                
+                if (data.submitted_at) {
+                    const time = new Date(data.submitted_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    document.getElementById('submitted-time').textContent = 'at ' + time;
+                }
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('card').classList.remove('hidden');
+                
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+
+        loadUserData();
+    </script>
+</body>
+</html>
