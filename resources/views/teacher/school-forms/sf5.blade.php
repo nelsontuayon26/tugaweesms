@@ -214,7 +214,7 @@
         @endif
 
         <!-- SF5 Container -->
-<div class="overflow-x-auto pb-4">`n        <div class="sf5-container bg-white p-4 rounded-xl shadow-lg border border-slate-200 max-w-[1600px] mx-auto">
+<div class="overflow-x-auto pb-4">       <div class="sf5-container bg-white p-4 rounded-xl shadow-lg border border-slate-200 max-w-[1600px] mx-auto">
             
             <!-- School Header Information -->
             <div class="grid grid-cols-4 gap-3 mb-3 text-xs">

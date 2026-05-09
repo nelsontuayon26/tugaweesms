@@ -35,7 +35,7 @@ class SchoolYearController extends Controller
      */
     public function index()
     {
-        $schoolYears = SchoolYear::with('quarters')->orderBy('start_date', 'desc')->paginate(10);
+        $schoolYears = SchoolYear::with(['quarters', 'closure'])->orderBy('start_date', 'desc')->paginate(10);
         $activeSchoolYear = SchoolYear::with('quarters')->where('is_active', true)->first();
 
         // Get closure status if there's an active school year
@@ -425,6 +425,19 @@ class SchoolYearController extends Controller
         try {
             DB::beginTransaction();
 
+            // Prevent double-processing an already-closed school year
+            $existingClosure = SchoolYearClosure::where('school_year_id', $activeSchoolYear->id)
+                ->where('status', 'closed')
+                ->first();
+            if ($existingClosure) {
+                DB::rollBack();
+                $message = 'This school year has already been closed.';
+                if ($request && ($request->ajax() || $request->wantsJson())) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
             $nextSchoolYear = SchoolYear::where('start_date', '>', $activeSchoolYear->start_date)
                 ->orderBy('start_date')
                 ->first();
@@ -650,6 +663,13 @@ class SchoolYearController extends Controller
 
         if ($schoolYear->is_active) {
             return redirect()->back()->with('warning', 'This school year is already active.');
+        }
+
+        // Prevent reactivation of closed school years
+        $closure = SchoolYearClosure::where('school_year_id', $schoolYear->id)->first();
+        if ($closure && $closure->status === 'closed') {
+            return redirect()->back()
+                ->with('error', 'This school year has been closed and cannot be reactivated. View its data through Reports instead.');
         }
 
         try {

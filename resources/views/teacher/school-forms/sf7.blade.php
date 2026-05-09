@@ -137,7 +137,7 @@
         @endif
 
         @if($teacherProfile)
-<div class="overflow-x-auto pb-4">`n        <div class="sf7-container bg-white p-4 rounded-xl shadow-lg border border-slate-200 max-w-[1200px] mx-auto">
+<div class="overflow-x-auto pb-4">       <div class="sf7-container bg-white p-4 rounded-xl shadow-lg border border-slate-200 max-w-[1200px] mx-auto">
             
             <!-- School Header -->
             <div class="grid grid-cols-3 gap-3 mb-3 text-xs">

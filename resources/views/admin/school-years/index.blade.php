@@ -322,7 +322,7 @@
                             @endphp
                             <tr data-year='{{ $yearData }}'
                                 onclick="selectYear(this)"
-                                class="transition-all group cursor-pointer hover:bg-slate-50/80"
+                                class="transition-all group cursor-pointer hover:bg-slate-50/80 {{ $year->closure && $year->closure->status === 'closed' ? 'bg-gray-50/50' : '' }}"
                                 id="year-row-{{ $year->id }}">
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-3">
@@ -340,6 +340,11 @@
                                             <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
                                             ACTIVE
                                         </span>
+                                    @elseif($year->closure && $year->closure->status === 'closed')
+                                        <span class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-bold shadow-sm">
+                                            <i class="fas fa-lock mr-2 text-gray-500"></i>
+                                            CLOSED
+                                        </span>
                                     @else
                                         <span class="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-medium">
                                             Inactive
@@ -348,7 +353,7 @@
                                 </td>
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-2">
-                                        @if(!$year->is_active)
+                                        @if(!$year->is_active && !($year->closure && $year->closure->status === 'closed'))
                                         <form action="{{ route('admin.school-year.start') }}" method="POST" class="inline" @click.stop>
                                             @csrf
                                             <input type="hidden" name="school_year_id" value="{{ $year->id }}">
@@ -358,6 +363,11 @@
                                                 <i class="fas fa-play mr-2"></i>Start
                                             </button>
                                         </form>
+                                        @elseif($year->closure && $year->closure->status === 'closed')
+                                        <span class="text-gray-400 text-sm italic flex items-center gap-2">
+                                            <i class="fas fa-lock text-gray-500"></i>
+                                            Closed — view in Reports
+                                        </span>
                                         @else
                                         <span class="text-slate-400 text-sm italic flex items-center gap-2">
                                             <i class="fas fa-check-circle text-emerald-500"></i>

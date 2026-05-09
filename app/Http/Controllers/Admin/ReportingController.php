@@ -798,8 +798,10 @@ class ReportingController extends Controller
      */
     protected function generateSf1(array $parameters): array
     {
-        $activeSchoolYear = SchoolYear::where('is_active', true)->first()
-            ?? SchoolYear::latest('start_date')->first();
+        $activeSchoolYear = !empty($parameters['school_year_id'])
+            ? SchoolYear::find($parameters['school_year_id'])
+            : (SchoolYear::where('is_active', true)->first()
+                ?? SchoolYear::latest('start_date')->first());
 
         $schoolSettings = \App\Models\Setting::where('group', 'school')->get()->keyBy('key')->map->value;
         $schoolYearStart = $activeSchoolYear ? Carbon::parse($activeSchoolYear->start_date)->year : Carbon::now()->year;
@@ -870,8 +872,10 @@ class ReportingController extends Controller
      */
     protected function generateSf2(array $parameters): array
     {
-        $activeSchoolYear = SchoolYear::where('is_active', true)->first()
-            ?? SchoolYear::latest('start_date')->first();
+        $activeSchoolYear = !empty($parameters['school_year_id'])
+            ? SchoolYear::find($parameters['school_year_id'])
+            : (SchoolYear::where('is_active', true)->first()
+                ?? SchoolYear::latest('start_date')->first());
 
         $schoolSettings = \App\Models\Setting::where('group', 'school')->get()->keyBy('key')->map->value;
 
@@ -1356,7 +1360,10 @@ class ReportingController extends Controller
      */
     protected function generateSf9(array $parameters): array
     {
-        $activeSchoolYear = SchoolYear::where('is_active', true)->first() ?? SchoolYear::latest('start_date')->first();
+        $activeSchoolYear = !empty($parameters['school_year_id'])
+            ? SchoolYear::find($parameters['school_year_id'])
+            : (SchoolYear::where('is_active', true)->first()
+                ?? SchoolYear::latest('start_date')->first());
         $schoolSettings = \App\Models\Setting::where('group', 'school')->get()->keyBy('key')->map->value;
         $schoolId = $schoolSettings['deped_school_id'] ?? '';
         $schoolName = $schoolSettings['school_name'] ?? '';

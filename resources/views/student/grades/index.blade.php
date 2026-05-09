@@ -844,9 +844,5 @@
     </main>
 </div>
 
-<button onclick="window.print()" class="print-btn no-print">
-    <i class="fas fa-print text-white text-xl"></i>
-</button>
-
 </body>
 </html>

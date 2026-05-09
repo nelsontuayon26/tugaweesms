@@ -54,6 +54,11 @@ class SchoolYear extends Model
         return $this->hasMany(Quarter::class)->orderBy('quarter_number');
     }
 
+    public function closure()
+    {
+        return $this->hasOne(SchoolYearClosure::class);
+    }
+
     /**
      * Get the currently active quarter for this school year
      */
