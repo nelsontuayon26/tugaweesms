@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\Teacher;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -205,8 +207,21 @@ class TeacherController extends Controller
     // Show teacher
     public function show(Teacher $teacher)
     {
-        $teacher->load('user');
-        return view('admin.teachers.show', compact('teacher'));
+        $teacher->load(['user', 'sections.gradeLevel', 'subjects']);
+        
+        $schoolSettings = Setting::where('group', 'school')->get()->keyBy('key')->map->value;
+        $schoolId = $schoolSettings['deped_school_id'] ?? '';
+        $schoolName = $schoolSettings['school_name'] ?? '';
+        $schoolDivision = $schoolSettings['school_division'] ?? '';
+        $schoolRegion = $schoolSettings['school_region'] ?? '';
+        $schoolHead = $schoolSettings['school_head'] ?? Setting::where('key', 'school_head')->value('value') ?? '';
+        
+        $activityLogs = \App\Models\ActivityLog::forEntity('Teacher', $teacher->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('admin.teachers.show', compact('teacher', 'schoolId', 'schoolName', 'schoolDivision', 'schoolRegion', 'schoolHead', 'activityLogs'));
     }
 
     // Show edit form
@@ -429,5 +444,183 @@ class TeacherController extends Controller
             DB::rollback();
             return redirect()->route('admin.teachers.index')->with('error', 'Failed to delete teacher: ' . $e->getMessage());
         }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'exists:teachers,id']);
+        $teachers = Teacher::whereIn('id', $request->ids)->get();
+        $skipped = [];
+        $deleted = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($teachers as $teacher) {
+                $relations = [];
+                if ($teacher->sections()->exists()) $relations[] = 'sections';
+                if ($teacher->assignments()->exists()) $relations[] = 'assignments';
+                if ($teacher->schedules()->exists()) $relations[] = 'schedules';
+                if ($teacher->interventions()->exists()) $relations[] = 'interventions';
+                if (\App\Models\SectionFinalization::where('teacher_id', $teacher->id)->exists()) $relations[] = 'finalizations';
+                if (\App\Models\TeachingProgram::where('teacher_id', $teacher->id)->exists()) $relations[] = 'programs';
+                if ($teacher->subjects()->exists()) $relations[] = 'subjects';
+
+                if (!empty($relations)) {
+                    $skipped[] = $teacher->full_name;
+                    continue;
+                }
+
+                if ($teacher->user) {
+                    \App\Models\SectionFinalization::where('unlocked_by', $teacher->user->id)->update(['unlocked_by' => null]);
+                    \App\Models\SectionFinalization::where('finalized_by', $teacher->user->id)->update(['finalized_by' => null]);
+                    if ($teacher->user->role && $teacher->user->role->name === 'Teacher') {
+                        $teacher->user->delete();
+                    }
+                }
+                $teacher->delete();
+                $deleted++;
+            }
+            DB::commit();
+
+            $msg = "Deleted {$deleted} teacher(s).";
+            if (!empty($skipped)) {
+                $msg .= ' Skipped (' . implode(', ', $skipped) . ') due to related records.';
+                return redirect()->route('admin.teachers.index')->with('warning', $msg);
+            }
+            return redirect()->route('admin.teachers.index')->with('success', $msg);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.teachers.index')->with('error', 'Bulk delete failed: ' . $e->getMessage());
+        }
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'exists:teachers,id']);
+        $teachers = Teacher::with(['sections.gradeLevel', 'subjects'])->whereIn('id', $request->ids)->get()->sortBy(fn($t) => [strtoupper($t->last_name ?? ''), strtoupper($t->first_name ?? '')]);
+
+        $headers = [
+            'NO.', 'Employee ID', 'DepEd ID', 'Name',
+            'Gender', 'Date of Birth', 'Place of Birth', 'Civil Status', 'Nationality', 'Religion', 'Blood Type',
+            'Email', 'Mobile Number', 'Telephone Number',
+            'Address', 'Region',
+            'Emergency Contact Name', 'Emergency Contact Relationship', 'Emergency Contact Number', 'Emergency Contact Address',
+            'Employment Status', 'Date Hired', 'Date Regularized', 'Current Status', 'Teaching Level', 'Position', 'Designation', 'Department',
+            'Class Adviser', 'Advisory Class', 'Salary Grade', 'Step Increment', 'Basic Salary', 'Bank Name', 'Bank Account Number',
+            'Highest Education', 'Degree Program', 'Major', 'Minor', 'School Graduated', 'Year Graduated', 'Honors Received',
+            'PRC License Number', 'License Validity', 'LET Passer', 'Board Rating', 'TESDA NC', 'TESDA Sector',
+            'Years of Experience', 'Previous School', 'Previous Position',
+            'GSIS ID', 'Pag-IBIG ID', 'PhilHealth ID', 'SSS ID', 'TIN ID', 'Pag-IBIG RTN',
+            'Spouse Name', 'Spouse Occupation', 'Spouse Contact', 'Number of Children',
+            'Father\'s Name', 'Father\'s Occupation', 'Mother\'s Name', 'Mother\'s Occupation',
+            'Sections', 'Subjects', 'Remarks'
+        ];
+        $csv = "\xEF\xBB\xBF" . implode(',', array_map(fn($h) => '"' . str_replace('"', '""', $h) . '"', $headers)) . "\n";
+
+        $no = 1;
+        foreach ($teachers as $teacher) {
+            $sections = $teacher->sections->map(fn($s) => $s->name . ($s->gradeLevel ? ' (' . $s->gradeLevel->name . ')' : ''))->join('; ');
+            $subjects = $teacher->subjects->pluck('name')->join('; ');
+            $dob = $teacher->date_of_birth ? Carbon::parse($teacher->date_of_birth)->format('m/d/Y') : '';
+            $hired = $teacher->date_hired ? Carbon::parse($teacher->date_hired)->format('m/d/Y') : '';
+            $regularized = $teacher->date_regularized ? Carbon::parse($teacher->date_regularized)->format('m/d/Y') : '';
+            $prcValidity = $teacher->prc_license_validity ? Carbon::parse($teacher->prc_license_validity)->format('m/d/Y') : '';
+            $row = [
+                $no++,
+                $teacher->employee_id ?? 'EMP-' . str_pad($teacher->id, 4, '0', STR_PAD_LEFT),
+                $teacher->deped_id ?? '',
+                trim(($teacher->last_name ?? '') . ', ' . ($teacher->first_name ?? '') . ' ' . ($teacher->middle_name ?? '') . ' ' . ($teacher->suffix ?? '')),
+                $teacher->gender ?? '',
+                $dob,
+                $teacher->place_of_birth ?? '',
+                $teacher->civil_status ?? '',
+                $teacher->nationality ?? '',
+                $teacher->religion ?? '',
+                $teacher->blood_type ?? '',
+                $teacher->email ?? '',
+                $teacher->mobile_number ?? '',
+                $teacher->telephone_number ?? '',
+                implode(', ', array_filter([$teacher->street_address, $teacher->barangay, $teacher->city_municipality, $teacher->province, $teacher->zip_code])),
+                $teacher->region ?? '',
+                $teacher->emergency_contact_name ?? '',
+                $teacher->emergency_contact_relationship ?? '',
+                $teacher->emergency_contact_number ?? '',
+                $teacher->emergency_contact_address ?? '',
+                $teacher->employment_status ?? '',
+                $hired,
+                $regularized,
+                $teacher->current_status ?? '',
+                $teacher->teaching_level ?? '',
+                $teacher->position ?? '',
+                $teacher->designation ?? '',
+                $teacher->department ?? '',
+                $teacher->is_class_adviser ? 'Yes' : 'No',
+                $teacher->advisory_class ?? '',
+                $teacher->salary_grade ?? '',
+                $teacher->step_increment ?? '',
+                $teacher->basic_salary ?? '',
+                $teacher->bank_name ?? '',
+                $teacher->bank_account_number ?? '',
+                $teacher->highest_education ?? '',
+                $teacher->degree_program ?? '',
+                $teacher->major ?? '',
+                $teacher->minor ?? '',
+                $teacher->school_graduated ?? '',
+                $teacher->year_graduated ?? '',
+                $teacher->honors_received ?? '',
+                $teacher->prc_license_number ?? '',
+                $prcValidity,
+                $teacher->let_passer ? 'Yes' : 'No',
+                $teacher->board_rating ?? '',
+                $teacher->tesda_nc ?? '',
+                $teacher->tesda_sector ?? '',
+                $teacher->years_of_experience ?? '',
+                $teacher->previous_school ?? '',
+                $teacher->previous_position ?? '',
+                $teacher->gsis_id ?? '',
+                $teacher->pagibig_id ?? '',
+                $teacher->philhealth_id ?? '',
+                $teacher->sss_id ?? '',
+                $teacher->tin_id ?? '',
+                $teacher->pagibig_rtn ?? '',
+                $teacher->spouse_name ?? '',
+                $teacher->spouse_occupation ?? '',
+                $teacher->spouse_contact ?? '',
+                $teacher->number_of_children ?? '',
+                $teacher->father_name ?? '',
+                $teacher->father_occupation ?? '',
+                $teacher->mother_name ?? '',
+                $teacher->mother_occupation ?? '',
+                $sections,
+                $subjects,
+                $teacher->remarks ?? '',
+            ];
+            $csv .= implode(',', array_map(fn($cell) => '"' . str_replace('"', '""', (string)$cell) . '"', $row)) . "\n";
+        }
+
+        return response($csv, 200, ['Content-Type' => 'text/csv; charset=UTF-8', 'Content-Disposition' => 'attachment; filename="Teachers_Full_Export_' . now()->format('Y-m-d_His') . '.csv"']);
+    }
+
+    public function printProfiles(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'exists:teachers,id']);
+        $teachers = Teacher::with(['sections.gradeLevel', 'subjects', 'user'])->whereIn('id', $request->ids)->get()->sortBy(fn($t) => [strtoupper($t->last_name ?? ''), strtoupper($t->first_name ?? '')]);
+        $schoolHead = Setting::where('key', 'school_head')->value('value') ?? '';
+
+        // Pre-load photos as base64 data URIs so they print instantly without async loading
+        $photos = [];
+        foreach ($teachers as $teacher) {
+            $photoData = null;
+            if ($teacher->photo_path && Storage::disk('public')->exists($teacher->photo_path)) {
+                $mime = Storage::disk('public')->mimeType($teacher->photo_path) ?: 'image/jpeg';
+                $base64 = base64_encode(Storage::disk('public')->get($teacher->photo_path));
+                $photoData = 'data:' . $mime . ';base64,' . $base64;
+            } elseif ($teacher->user && $teacher->user->photo && str_starts_with($teacher->user->photo, 'data:')) {
+                $photoData = $teacher->user->photo;
+            }
+            $photos[$teacher->id] = $photoData;
+        }
+
+        return view('admin.teachers.print', compact('teachers', 'schoolHead', 'photos'));
     }
 }

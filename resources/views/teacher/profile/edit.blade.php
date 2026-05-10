@@ -286,6 +286,30 @@
                             <i class="fas fa-graduation-cap text-lg"></i>
                             <span>Education</span>
                         </button>
+                        <button type="button" onclick="switchTab('emergency')" id="tab-emergency" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-ambulance text-lg"></i>
+                            <span>Emergency</span>
+                        </button>
+                        <button type="button" onclick="switchTab('salary')" id="tab-salary" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-money-check-alt text-lg"></i>
+                            <span>Salary</span>
+                        </button>
+                        <button type="button" onclick="switchTab('credentials')" id="tab-credentials" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-certificate text-lg"></i>
+                            <span>Credentials</span>
+                        </button>
+                        <button type="button" onclick="switchTab('government')" id="tab-government" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-id-card-alt text-lg"></i>
+                            <span>Gov't IDs</span>
+                        </button>
+                        <button type="button" onclick="switchTab('family')" id="tab-family" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-users text-lg"></i>
+                            <span>Family</span>
+                        </button>
+                        <button type="button" onclick="switchTab('others')" id="tab-others" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-ellipsis-h text-lg"></i>
+                            <span>Others</span>
+                        </button>
                     </div>
 
                     {{-- Account Information Tab --}}
@@ -376,7 +400,7 @@
                                 <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date of Birth</label>
                                 <div class="relative">
                                     <i class="fas fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $teacher->date_of_birth) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $teacher->date_of_birth?->format('Y-m-d')) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
                                 </div>
                             </div>
                         </div>
@@ -522,14 +546,14 @@
                                 <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date Hired</label>
                                 <div class="relative">
                                     <i class="fas fa-calendar-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="date_hired" value="{{ old('date_hired', $teacher->date_hired) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <input type="date" name="date_hired" value="{{ old('date_hired', $teacher->date_hired?->format('Y-m-d')) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
                                 </div>
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date Regularized</label>
                                 <div class="relative">
                                     <i class="fas fa-calendar-check absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="date_regularized" value="{{ old('date_regularized', $teacher->date_regularized) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <input type="date" name="date_regularized" value="{{ old('date_regularized', $teacher->date_regularized?->format('Y-m-d')) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -613,7 +637,7 @@
                                 <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">PRC Validity</label>
                                 <div class="relative">
                                     <i class="fas fa-certificate absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="prc_license_validity" value="{{ old('prc_license_validity', $teacher->prc_license_validity) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <input type="date" name="prc_license_validity" value="{{ old('prc_license_validity', $teacher->prc_license_validity?->format('Y-m-d')) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
                                 </div>
                             </div>
                             <div class="space-y-2">
@@ -622,6 +646,216 @@
                                     <i class="fas fa-star absolute left-4 top-1/2 -translate-y-1/2 text-amber-400"></i>
                                     <input type="number" name="years_of_experience" value="{{ old('years_of_experience', $teacher->years_of_experience) }}" class="input-field w-full pl-11 pr-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Years of Experience">
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Emergency Contact Tab --}}
+                    <div id="content-emergency" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-ambulance"></i></div>
+                                Emergency Contact
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact Name</label>
+                                <input type="text" name="emergency_contact_name" value="{{ old('emergency_contact_name', $teacher->emergency_contact_name) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Emergency Contact Name">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Relationship</label>
+                                <input type="text" name="emergency_contact_relationship" value="{{ old('emergency_contact_relationship', $teacher->emergency_contact_relationship) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Relationship">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact Number</label>
+                                <input type="text" name="emergency_contact_number" value="{{ old('emergency_contact_number', $teacher->emergency_contact_number) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Contact Number">
+                            </div>
+                            <div class="space-y-2 sm:col-span-2 lg:col-span-3">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Emergency Contact Address</label>
+                                <input type="text" name="emergency_contact_address" value="{{ old('emergency_contact_address', $teacher->emergency_contact_address) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Emergency Contact Address">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Salary & Bank Tab --}}
+                    <div id="content-salary" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-money-check-alt"></i></div>
+                                Salary & Bank Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Salary Grade</label>
+                                <input type="text" name="salary_grade" value="{{ old('salary_grade', $teacher->salary_grade) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Salary Grade">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Step Increment</label>
+                                <input type="text" name="step_increment" value="{{ old('step_increment', $teacher->step_increment) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Step Increment">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Basic Salary</label>
+                                <input type="number" step="0.01" name="basic_salary" value="{{ old('basic_salary', $teacher->basic_salary) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Basic Salary">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Bank Name</label>
+                                <input type="text" name="bank_name" value="{{ old('bank_name', $teacher->bank_name) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Bank Name">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Bank Account Number</label>
+                                <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $teacher->bank_account_number) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Bank Account Number">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Credentials Tab --}}
+                    <div id="content-credentials" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-certificate"></i></div>
+                                Professional Credentials
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">LET Passer</label>
+                                <select name="let_passer" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <option value="0" {{ old('let_passer', $teacher->let_passer) ? '' : 'selected' }}>No</option>
+                                    <option value="1" {{ old('let_passer', $teacher->let_passer) ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Board Rating</label>
+                                <input type="text" name="board_rating" value="{{ old('board_rating', $teacher->board_rating) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Board Rating">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TESDA NC</label>
+                                <input type="text" name="tesda_nc" value="{{ old('tesda_nc', $teacher->tesda_nc) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="TESDA NC">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TESDA Sector</label>
+                                <input type="text" name="tesda_sector" value="{{ old('tesda_sector', $teacher->tesda_sector) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="TESDA Sector">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Previous School</label>
+                                <input type="text" name="previous_school" value="{{ old('previous_school', $teacher->previous_school) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Previous School">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Previous Position</label>
+                                <input type="text" name="previous_position" value="{{ old('previous_position', $teacher->previous_position) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Previous Position">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Honors Received</label>
+                                <input type="text" name="honors_received" value="{{ old('honors_received', $teacher->honors_received) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Honors Received">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Government IDs Tab --}}
+                    <div id="content-government" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-id-card-alt"></i></div>
+                                Government IDs
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">GSIS ID</label>
+                                <input type="text" name="gsis_id" value="{{ old('gsis_id', $teacher->gsis_id) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="GSIS ID">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pag-IBIG ID</label>
+                                <input type="text" name="pagibig_id" value="{{ old('pagibig_id', $teacher->pagibig_id) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Pag-IBIG ID">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">PhilHealth ID</label>
+                                <input type="text" name="philhealth_id" value="{{ old('philhealth_id', $teacher->philhealth_id) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="PhilHealth ID">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">SSS ID</label>
+                                <input type="text" name="sss_id" value="{{ old('sss_id', $teacher->sss_id) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="SSS ID">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TIN ID</label>
+                                <input type="text" name="tin_id" value="{{ old('tin_id', $teacher->tin_id) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="TIN ID">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pag-IBIG RTN</label>
+                                <input type="text" name="pagibig_rtn" value="{{ old('pagibig_rtn', $teacher->pagibig_rtn) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Pag-IBIG RTN">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Family Tab --}}
+                    <div id="content-family" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-users"></i></div>
+                                Family Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Spouse Name</label>
+                                <input type="text" name="spouse_name" value="{{ old('spouse_name', $teacher->spouse_name) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Spouse Name">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Spouse Occupation</label>
+                                <input type="text" name="spouse_occupation" value="{{ old('spouse_occupation', $teacher->spouse_occupation) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Spouse Occupation">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Spouse Contact</label>
+                                <input type="text" name="spouse_contact" value="{{ old('spouse_contact', $teacher->spouse_contact) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Spouse Contact">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Number of Children</label>
+                                <input type="number" name="number_of_children" value="{{ old('number_of_children', $teacher->number_of_children) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Number of Children">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Father's Name</label>
+                                <input type="text" name="father_name" value="{{ old('father_name', $teacher->father_name) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Father's Name">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Father's Occupation</label>
+                                <input type="text" name="father_occupation" value="{{ old('father_occupation', $teacher->father_occupation) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Father's Occupation">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mother's Name</label>
+                                <input type="text" name="mother_name" value="{{ old('mother_name', $teacher->mother_name) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Mother's Name">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mother's Occupation</label>
+                                <input type="text" name="mother_occupation" value="{{ old('mother_occupation', $teacher->mother_occupation) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Mother's Occupation">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Others Tab --}}
+                    <div id="content-others" class="form-section glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60 hidden">
+                        <div class="section-header rounded-2xl p-5 mb-6 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-ellipsis-h"></i></div>
+                                Other Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Class Adviser</label>
+                                <select name="is_class_adviser" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none">
+                                    <option value="0" {{ old('is_class_adviser', $teacher->is_class_adviser) ? '' : 'selected' }}>No</option>
+                                    <option value="1" {{ old('is_class_adviser', $teacher->is_class_adviser) ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Advisory Class</label>
+                                <input type="text" name="advisory_class" value="{{ old('advisory_class', $teacher->advisory_class) }}" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Advisory Class">
+                            </div>
+                            <div class="space-y-2 sm:col-span-2 lg:col-span-3">
+                                <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Remarks</label>
+                                <textarea name="remarks" rows="3" class="input-field w-full px-4 py-3 rounded-xl bg-white text-sm font-semibold text-slate-800 focus:outline-none" placeholder="Remarks">{{ old('remarks', $teacher->remarks) }}</textarea>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1081,6 +1081,26 @@
         .stagger-3 { animation-delay: 0.3s; }
         .stagger-4 { animation-delay: 0.4s; }
 
+        /* SF1 Table */
+        .sf1-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 8px;
+        }
+        .sf1-table th,
+        .sf1-table td {
+            border: 1px solid #000;
+            padding: 2px 3px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .sf1-table th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 7px;
+        }
+
         /* Print styles */
         @media print {
             .fab-container, .sidebar, .toast, .tabs-wrapper { display: none !important; }
@@ -1370,344 +1390,12 @@
                     <!-- Enhanced Tab Navigation -->
                     <div class="tabs-wrapper animate-fade-in stagger-3">
                         <div class="tabs-container">
-                            <button class="tab-btn active" onclick="switchTab('personal', this)">
-                                <i class="fas fa-user"></i>Personal
-                            </button>
-                            <button class="tab-btn" onclick="switchTab('school', this)">
-                                <i class="fas fa-school"></i>School Info
-                            </button>
-                            <button class="tab-btn" onclick="switchTab('family', this)">
-                                <i class="fas fa-users"></i>Family
-                            </button>
-                            <button class="tab-btn" onclick="switchTab('address', this)">
-                                <i class="fas fa-map-marker-alt"></i>Address
-                            </button>
-                            <button class="tab-btn" onclick="switchTab('documents', this)">
-                                <i class="fas fa-folder-open"></i>Documents
+                            <button class="tab-btn active" onclick="switchTab('sf1', this)">
+                                <i class="fas fa-table"></i>SF1
                             </button>
                             <button class="tab-btn" onclick="switchTab('history', this)">
                                 <i class="fas fa-history"></i>History
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Personal Information Tab -->
-                    <div id="personal" class="tab-content active">
-                        <div class="glass-card p-6 mb-6 animate-fade-in stagger-4">
-                            <div class="section-header">
-                                <i class="fas fa-user-circle"></i>
-                                <h3>Personal Information</h3>
-                            </div>
-                            
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-icon blue">
-                                        <i class="fas fa-birthday-cake"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Birthdate</div>
-                                        <div class="info-value">{{ $student->birthdate ? date('F d, Y', strtotime($student->birthdate)) : 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon indigo">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Birth Place</div>
-                                        <div class="info-value">{{ $student->birth_place ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon pink">
-                                        <i class="fas fa-venus-mars"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Gender</div>
-                                        <div class="info-value capitalize">{{ $student->gender ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon amber">
-                                        <i class="fas fa-globe"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Nationality</div>
-                                        <div class="info-value">{{ $student->nationality ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon rose">
-                                        <i class="fas fa-pray"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Religion</div>
-                                        <div class="info-value">{{ $student->religion ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon emerald">
-                                        <i class="fas fa-id-card"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">LRN</div>
-                                        <div class="info-value">{{ $student->lrn ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- School Information Tab -->
-                    <div id="school" class="tab-content">
-                        <div class="glass-card p-6 mb-6 animate-fade-in">
-                            <div class="section-header">
-                                <i class="fas fa-school" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669;"></i>
-                                <h3>School Information</h3>
-                            </div>
-                            
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-icon emerald">
-                                        <i class="fas fa-layer-group"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Grade Level</div>
-                                        <div class="info-value">{{ $student->gradeLevel->name ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon cyan">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Section</div>
-                                        <div class="info-value">{{ $student->section->name ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon violet">
-                                        <i class="fas fa-hashtag"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Section ID</div>
-                                        <div class="info-value">{{ $student->section_id ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon amber">
-                                        <i class="fas fa-calendar-check"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">School Year</div>
-                                        <div class="info-value">{{ $student->enrollments->first()->schoolYear->name ?? 'Not provided' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon rose">
-                                        <i class="fas fa-info-circle"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Status</div>
-                                        <span class="status-pill {{ $student->status === 'active' ? 'pill-enrolled' : 'pill-pending' }}">
-                                            <span class="status-dot {{ $student->status === 'active' ? 'dot-enrolled' : 'dot-pending' }}"></span>
-                                            {{ ucfirst($student->status) }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="info-item">
-                                    <div class="info-icon blue">
-                                        <i class="fas fa-clock"></i>
-                                    </div>
-                                    <div>
-                                        <div class="info-label">Enrolled Since</div>
-                                        <div class="info-value">{{ $student->created_at ? $student->created_at->format('F d, Y') : 'Not provided' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Family Tab -->
-                    <div id="family" class="tab-content">
-                        <div class="glass-card p-6 mb-6 animate-fade-in">
-                            <div class="section-header">
-                                <i class="fas fa-users" style="background: linear-gradient(135deg, #f5f3ff, #e9d5ff); color: #7c3aed;"></i>
-                                <h3>Parents / Guardian Information</h3>
-                            </div>
-                            
-                            <div class="parents-grid">
-                                <!-- Father -->
-                                <div class="parent-card">
-                                    <div class="parent-header">
-                                        <div class="parent-avatar father">
-                                            <i class="fas fa-male"></i>
-                                        </div>
-                                        <div>
-                                            <div class="parent-title">Father</div>
-                                            <div class="parent-occupation">{{ $student->father_occupation ?? 'Occupation not specified' }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="parent-name">{{ $student->father_name ?? 'Not provided' }}</div>
-                                    @if($student->father_contact)
-                                    <div class="parent-contact">
-                                        <i class="fas fa-phone text-blue-500"></i>
-                                        {{ $student->father_contact }}
-                                    </div>
-                                    @endif
-                                </div>
-
-                                <!-- Mother -->
-                                <div class="parent-card">
-                                    <div class="parent-header">
-                                        <div class="parent-avatar mother">
-                                            <i class="fas fa-female"></i>
-                                        </div>
-                                        <div>
-                                            <div class="parent-title">Mother</div>
-                                            <div class="parent-occupation">{{ $student->mother_occupation ?? 'Occupation not specified' }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="parent-name">{{ $student->mother_name ?? 'Not provided' }}</div>
-                                    @if($student->mother_contact)
-                                    <div class="parent-contact">
-                                        <i class="fas fa-phone text-pink-500"></i>
-                                        {{ $student->mother_contact }}
-                                    </div>
-                                    @endif
-                                </div>
-
-                                <!-- Guardian -->
-                                <div class="parent-card">
-                                    <div class="parent-header">
-                                        <div class="parent-avatar guardian">
-                                            <i class="fas fa-shield-alt"></i>
-                                        </div>
-                                        <div>
-                                            <div class="parent-title">Guardian</div>
-                                            <div class="parent-occupation">{{ $student->guardian_relationship ?? 'Relationship not specified' }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="parent-name">{{ $student->guardian_name ?? 'Not provided' }}</div>
-                                    @if($student->guardian_contact)
-                                    <div class="parent-contact">
-                                        <i class="fas fa-phone text-purple-500"></i>
-                                        {{ $student->guardian_contact }}
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Address Tab -->
-                    <div id="address" class="tab-content">
-                        <div class="address-card glass-card mb-6 animate-fade-in">
-                            <div class="address-header">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-home text-amber-600 text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-extrabold text-slate-900">Complete Address</h3>
-                                        <p class="text-slate-600 mt-1">
-                                            {{ $student->street_address ?? 'Street not provided' }}, 
-                                            {{ $student->barangay ?? 'Barangay not provided' }}, 
-                                            {{ $student->city ?? 'City not provided' }}, 
-                                            {{ $student->province ?? 'Province not provided' }} 
-                                            {{ $student->zip_code ?? '' }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="address-content">
-                                <div class="address-grid">
-                                    <div class="address-field">
-                                        <div class="address-label">Street Address</div>
-                                        <div class="address-value">{{ $student->street_address ?? 'N/A' }}</div>
-                                    </div>
-                                    <div class="address-field">
-                                        <div class="address-label">Barangay</div>
-                                        <div class="address-value">{{ $student->barangay ?? 'N/A' }}</div>
-                                    </div>
-                                    <div class="address-field">
-                                        <div class="address-label">City / Municipality</div>
-                                        <div class="address-value">{{ $student->city ?? 'N/A' }}</div>
-                                    </div>
-                                    <div class="address-field">
-                                        <div class="address-label">Zip Code</div>
-                                        <div class="address-value">{{ $student->zip_code ?? 'N/A' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Documents Tab -->
-                    <div id="documents" class="tab-content">
-                        <div class="glass-card p-6 animate-fade-in">
-                            <div class="section-header">
-                                <i class="fas fa-folder-open" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb;"></i>
-                                <h3>Documents & Attachments</h3>
-                            </div>
-                            
-                            @php
-                                $documents = [
-                                    ['path' => $student->birth_certificate_path, 'name' => 'Birth Certificate', 'icon' => 'fa-file-alt', 'color' => 'blue'],
-                                    ['path' => $student->report_card_path, 'name' => 'Report Card', 'icon' => 'fa-graduation-cap', 'color' => 'emerald'],
-                                    ['path' => $student->good_moral_path, 'name' => 'Good Moral Certificate', 'icon' => 'fa-certificate', 'color' => 'amber'],
-                                    ['path' => $student->medical_record_path, 'name' => 'Medical Record', 'icon' => 'fa-file-medical', 'color' => 'rose'],
-                                    ['path' => $student->id_picture_path, 'name' => 'ID Picture', 'icon' => 'fa-image', 'color' => 'purple'],
-                                    ['path' => $student->enrollment_form_path, 'name' => 'Enrollment Form', 'icon' => 'fa-file-signature', 'color' => 'cyan']
-                                ];
-                            @endphp
-
-                            <div class="documents-grid">
-                                @foreach($documents as $doc)
-                                    <div class="document-card">
-                                        <div class="flex items-center gap-4">
-                                            <div class="document-icon {{ $doc['color'] }}">
-                                                <i class="fas {{ $doc['icon'] }}"></i>
-                                            </div>
-                                            <div class="document-info">
-                                                <h4>{{ $doc['name'] }}</h4>
-                                                <p>{{ $doc['path'] ? 'Document uploaded' : 'No document uploaded' }}</p>
-                                            </div>
-                                        </div>
-                                        @if($doc['path'])
-                                            @php
-                                                $docType = match($doc['name']) {
-                                                    'Birth Certificate' => 'birth_certificate',
-                                                    'Report Card' => 'report_card',
-                                                    'Good Moral Certificate' => 'good_moral',
-                                                    'Medical Record' => 'medical_record',
-                                                    'ID Picture' => 'id_picture',
-                                                    'Enrollment Form' => 'enrollment_form',
-                                                    default => ''
-                                                };
-                                                $fileExt = pathinfo($doc['path'], PATHINFO_EXTENSION);
-                                            @endphp
-                                            <button onclick="openDocumentModal('{{ route('admin.students.document.view', ['student' => $student->id, 'type' => $docType]) }}', {{ json_encode($doc['name']) }}, '{{ strtolower($fileExt) }}')" 
-                                                    class="btn-primary">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                        @else
-                                            <span class="document-status missing">Missing</span>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
                         </div>
                     </div>
 
@@ -1719,30 +1407,80 @@
                                 <h3>Edit History & Audit Trail</h3>
                             </div>
                             
-                            @if(isset($auditLogs) && count($auditLogs) > 0)
-                                <div class="space-y-0">
-                                    @foreach($auditLogs as $log)
-                                        <div class="audit-item">
-                                            <div class="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <p class="font-bold text-slate-900">{{ $log->action }} by {{ $log->user->name ?? 'System' }}</p>
-                                                    <p class="text-sm text-slate-500">{{ $log->created_at->format('F d, Y h:i A') }}</p>
+                            @if($activityLogs && $activityLogs->count() > 0)
+                                <div class="space-y-3">
+                                    @foreach($activityLogs as $log)
+                                        <div class="p-4 bg-white border border-slate-200 rounded-xl">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-full bg-{{ $log->action_color }}-100 flex items-center justify-center text-{{ $log->action_color }}-600">
+                                                        <i class="fas {{ $log->action_icon }}"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-bold text-slate-900 text-sm capitalize">{{ $log->action }}</p>
+                                                        <p class="text-xs text-slate-500">by {{ $log->user?->full_name ?? 'System' }} on {{ $log->created_at->format('M d, Y h:i A') }}</p>
+                                                    </div>
                                                 </div>
                                                 <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold">
                                                     {{ $log->ip_address ?? 'N/A' }}
                                                 </span>
                                             </div>
-                                            @if($log->changes)
-                                                <div class="bg-slate-50 rounded-lg p-3 space-y-1">
-                                                    @foreach($log->changes as $field => $change)
-                                                        <div class="change-item">
-                                                            <span class="change-field">{{ ucwords(str_replace('_', ' ', $field)) }}:</span>
-                                                            <span class="change-old">{{ $change['old'] ?? 'N/A' }}</span>
-                                                            <i class="fas fa-arrow-right text-slate-400"></i>
-                                                            <span class="change-new">{{ $change['new'] ?? 'N/A' }}</span>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                                            <p class="text-sm text-slate-700 mb-2">{{ $log->description }}</p>
+                                            @if($log->old_values || $log->new_values)
+                                                @php
+                                                    $oldValues = $log->old_values ?? [];
+                                                    $newValues = $log->new_values ?? [];
+                                                    $hasNested = false;
+                                                    foreach (array_merge($oldValues, $newValues) as $v) {
+                                                        if (is_array($v)) { $hasNested = true; break; }
+                                                    }
+                                                @endphp
+                                                @if($hasNested)
+                                                    <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 italic">
+                                                        Changes recorded in legacy format (full record snapshot).
+                                                    </div>
+                                                @else
+                                                    @php
+                                                        $allKeys = array_unique(array_merge(array_keys($oldValues), array_keys($newValues)));
+                                                        $labelMap = [
+                                                            'user_username' => 'Username', 'user_email' => 'Email',
+                                                            'user_first_name' => 'First Name', 'user_middle_name' => 'Middle Name',
+                                                            'user_last_name' => 'Last Name', 'user_suffix' => 'Suffix',
+                                                            'user_photo' => 'Photo', 'user_password' => 'Password',
+                                                            'lrn' => 'LRN', 'birthdate' => 'Birth Date',
+                                                            'birth_place' => 'Birth Place', 'gender' => 'Gender',
+                                                            'nationality' => 'Nationality', 'religion' => 'Religion',
+                                                            'father_name' => 'Father\'s Name', 'father_occupation' => 'Father\'s Occupation',
+                                                            'mother_name' => 'Mother\'s Name', 'mother_occupation' => 'Mother\'s Occupation',
+                                                            'guardian_name' => 'Guardian\'s Name', 'guardian_relationship' => 'Guardian Relationship',
+                                                            'guardian_contact' => 'Guardian Contact', 'street_address' => 'Street Address',
+                                                            'barangay' => 'Barangay', 'city' => 'City',
+                                                            'province' => 'Province', 'zip_code' => 'ZIP Code',
+                                                            'grade_level_id' => 'Grade Level', 'section_id' => 'Section',
+                                                            'ethnicity' => 'Ethnicity', 'mother_tongue' => 'Mother Tongue',
+                                                            'remarks' => 'Remarks',
+                                                            'birth_certificate_path' => 'Birth Certificate',
+                                                            'report_card_path' => 'Report Card',
+                                                            'good_moral_path' => 'Good Moral Certificate',
+                                                            'transfer_credential_path' => 'Transfer Credential',
+                                                        ];
+                                                    @endphp
+                                                    <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-1">
+                                                        @foreach($allKeys as $key)
+                                                            @php
+                                                                $oldVal = $oldValues[$key] ?? '';
+                                                                $newVal = $newValues[$key] ?? '';
+                                                                $label = $labelMap[$key] ?? str_replace('_', ' ', ucfirst($key));
+                                                            @endphp
+                                                            <div class="flex items-start gap-2 flex-wrap">
+                                                                <span class="font-semibold text-slate-500 w-32 shrink-0">{{ $label }}:</span>
+                                                                <span class="text-rose-600 line-through">{{ $oldVal !== '' && $oldVal !== null ? $oldVal : '(empty)' }}</span>
+                                                                <span class="text-slate-400">→</span>
+                                                                <span class="text-emerald-600 font-medium">{{ $newVal !== '' && $newVal !== null ? $newVal : '(empty)' }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
                                     @endforeach
@@ -1752,10 +1490,204 @@
                                     <div class="empty-state-icon">
                                         <i class="fas fa-clipboard-check"></i>
                                     </div>
-                                    <h4>No Edit History</h4>
-                                    <p>No changes have been recorded yet. When the student record is edited, those changes will appear here.</p>
+                                    <h4>No Activity History</h4>
+                                    <p>No changes have been recorded yet. When the student record is created, updated, or deleted, those actions will appear here.</p>
                                 </div>
                             @endif
+                        </div>
+                    </div>
+
+                    <!-- SF1 Tab -->
+                    <div id="sf1" class="tab-content active">
+                        @php
+                            $enrollment = $student->enrollments->first();
+                            $sectionName = $enrollment?->section?->name ?? $student->section?->name ?? 'Unassigned';
+                            $gradeLevelName = $enrollment?->section?->gradeLevel?->name ?? $student->gradeLevel?->name ?? 'N/A';
+                            $schoolYearName = $activeSchoolYear?->name ?? 'N/A';
+                            $status = $enrollment?->status ?? 'pending';
+                            
+                            $user = $student->user;
+                            $gender = strtoupper($student->gender ?? '');
+                            $sexCode = $gender == 'MALE' || $gender == 'M' ? 'M' : ($gender == 'FEMALE' || $gender == 'F' ? 'F' : '');
+                            $birthDate = $student->birthdate ? \Carbon\Carbon::parse($student->birthdate)->format('m/d/Y') : '';
+                            $age = $student->age ?? '';
+                            $fullName = trim(($user->last_name ?? '') . ', ' . ($user->first_name ?? '') . ' ' . ($user->middle_name ?? ''));
+                            
+                            $addressParts = array_filter([
+                                $student->street_address ?? '',
+                                $student->barangay ?? '',
+                                $student->city ?? '',
+                                ($student->province ?? '') . ($student->zip_code ? ' ' . $student->zip_code : ''),
+                            ]);
+                            $address = implode(', ', $addressParts);
+                            $gradeSection = trim($gradeLevelName . ($gradeLevelName && $sectionName ? ' - ' : '') . $sectionName);
+                            $enrolledSince = $enrollment?->enrollment_date ? \Carbon\Carbon::parse($enrollment->enrollment_date)->format('m/d/Y') : '';
+                            
+                            $sf1Docs = [
+                                ['path' => $student->birth_certificate_path, 'name' => 'Birth Certificate'],
+                                ['path' => $student->report_card_path, 'name' => 'Report Card'],
+                                ['path' => $student->good_moral_path, 'name' => 'Good Moral'],
+                                ['path' => $student->transfer_credential_path, 'name' => 'Transfer Credential'],
+                                ['path' => $student->medical_record_path, 'name' => 'Medical Record'],
+                                ['path' => $student->id_picture_path, 'name' => 'ID Picture'],
+                                ['path' => $student->enrollment_form_path, 'name' => 'Enrollment Form'],
+                            ];
+                            $uploadedDocs = collect($sf1Docs)->whereNotNull('path')->pluck('name')->implode(', ');
+                        @endphp
+                        
+                        <div class="glass-card p-6 animate-fade-in">
+                            <!-- School Header -->
+                            <div class="grid grid-cols-2 gap-4 mb-4 text-xs">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-20 text-[10px]">School ID:</span>
+                                        <span class="border-b border-black flex-1 px-1 font-mono text-[10px]">{{ $schoolId }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-20 text-[10px]">School Name:</span>
+                                        <span class="border-b border-black flex-1 px-1 uppercase font-bold text-[10px]">{{ $schoolName }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-20 text-[10px]">Division:</span>
+                                        <span class="border-b border-black flex-1 px-1 uppercase text-[10px]">{{ $schoolDivision }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-20 text-[10px]">Region:</span>
+                                        <span class="border-b border-black flex-1 px-1 uppercase text-[10px]">{{ $schoolRegion }}</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-24 text-[10px]">School Year:</span>
+                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $schoolYearName }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-24 text-[10px]">Grade Level:</span>
+                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $gradeLevelName }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-24 text-[10px]">Section:</span>
+                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $sectionName }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold w-24 text-[10px]">Status:</span>
+                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px] capitalize">{{ $status }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SF1 Title -->
+                            <div class="text-center bg-blue-900 text-white font-bold text-[10px] py-2 mb-0 border border-black">
+                                SCHOOL FORM 1 (SF1) SCHOOL REGISTER<br>
+                                <span class="text-[9px] font-normal">(This replaces Form 1, Master List & STS Form 2-Family Background and Profile)</span>
+                            </div>
+                            
+                            <!-- SF1 Table -->
+                            <table class="sf1-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 3%;">NO.</th>
+                                        <th style="width: 8%;">LRN</th>
+                                        <th style="width: 10%;">NAME</th>
+                                        <th style="width: 6%;">SCHOOL YEAR</th>
+                                        <th style="width: 5%;">STATUS</th>
+                                        <th style="width: 8%;">GRADE & SECTION</th>
+                                        <th style="width: 6%;">ENROLLED SINCE</th>
+                                        <th style="width: 3%;">SEX</th>
+                                        <th style="width: 5%;">BIRTH DATE</th>
+                                        <th style="width: 3%;">AGE</th>
+                                        <th style="width: 5%;">MOTHER TONGUE</th>
+                                        <th style="width: 4%;">IP</th>
+                                        <th style="width: 4%;">RELIGION</th>
+                                        <th style="width: 10%;">ADDRESS</th>
+                                        <th style="width: 7%;">FATHER'S NAME</th>
+                                        <th style="width: 7%;">MOTHER'S NAME</th>
+                                        <th style="width: 7%;">GUARDIAN'S NAME</th>
+                                        <th style="width: 4%;">RELATIONSHIP</th>
+                                        <th style="width: 4%;">CONTACT</th>
+                                        <th style="width: 4%;">REMARKS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center">1</td>
+                                        <td class="font-mono text-[8px]">{{ $student->lrn ?? '' }}</td>
+                                        <td class="text-left uppercase text-[8px]">{{ $fullName }}</td>
+                                        <td class="text-center text-[8px]">{{ $schoolYearName }}</td>
+                                        <td class="text-center text-[8px] capitalize">{{ $status }}</td>
+                                        <td class="text-center text-[8px]">{{ $gradeSection }}</td>
+                                        <td class="text-center text-[8px]">{{ $enrolledSince }}</td>
+                                        <td class="text-center uppercase text-[8px] font-bold">{{ $sexCode }}</td>
+                                        <td class="text-center text-[8px]">{{ $birthDate }}</td>
+                                        <td class="text-center text-[8px] font-bold">{{ $age }}</td>
+                                        <td class="text-center uppercase text-[8px]">{{ $student->mother_tongue ?? '' }}</td>
+                                        <td class="text-center uppercase text-[8px]">{{ $student->ethnicity ?? '' }}</td>
+                                        <td class="text-center text-[8px]">{{ $student->religion ?? '' }}</td>
+                                        <td class="text-left uppercase text-[7px]">{{ $address }}</td>
+                                        <td class="text-left uppercase text-[7px]">{{ $student->father_name ?? '' }}</td>
+                                        <td class="text-left uppercase text-[7px]">{{ $student->mother_name ?? '' }}</td>
+                                        <td class="text-left uppercase text-[7px]">{{ $student->guardian_name ?? '' }}</td>
+                                        <td class="text-center uppercase text-[7px]">{{ $student->guardian_relationship ?? '' }}</td>
+                                        <td class="text-center text-[7px]">{{ $student->guardian_contact ?? '' }}</td>
+                                        <td class="text-center text-[8px] font-semibold">{{ $student->remarks ?? '' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- Documents Section -->
+                            <div class="mt-4">
+                                <div class="section-header mb-4">
+                                    <i class="fas fa-folder-open" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb;"></i>
+                                    <h3>Documents & Attachments</h3>
+                                </div>
+                                
+                                @php
+                                    $documents = [
+                                        ['path' => $student->birth_certificate_path, 'name' => 'Birth Certificate', 'icon' => 'fa-file-alt', 'color' => 'blue'],
+                                        ['path' => $student->report_card_path, 'name' => 'Report Card', 'icon' => 'fa-graduation-cap', 'color' => 'emerald'],
+                                        ['path' => $student->good_moral_path, 'name' => 'Good Moral Certificate', 'icon' => 'fa-certificate', 'color' => 'amber'],
+                                        ['path' => $student->medical_record_path, 'name' => 'Medical Record', 'icon' => 'fa-file-medical', 'color' => 'rose'],
+                                        ['path' => $student->id_picture_path, 'name' => 'ID Picture', 'icon' => 'fa-image', 'color' => 'purple'],
+                                        ['path' => $student->enrollment_form_path, 'name' => 'Enrollment Form', 'icon' => 'fa-file-signature', 'color' => 'cyan']
+                                    ];
+                                @endphp
+
+                                <div class="documents-grid">
+                                    @foreach($documents as $doc)
+                                        <div class="document-card">
+                                            <div class="flex items-center gap-4">
+                                                <div class="document-icon {{ $doc['color'] }}">
+                                                    <i class="fas {{ $doc['icon'] }}"></i>
+                                                </div>
+                                                <div class="document-info">
+                                                    <h4>{{ $doc['name'] }}</h4>
+                                                    <p>{{ $doc['path'] ? 'Document uploaded' : 'No document uploaded' }}</p>
+                                                </div>
+                                            </div>
+                                            @if($doc['path'])
+                                                @php
+                                                    $docType = match($doc['name']) {
+                                                        'Birth Certificate' => 'birth_certificate',
+                                                        'Report Card' => 'report_card',
+                                                        'Good Moral Certificate' => 'good_moral',
+                                                        'Medical Record' => 'medical_record',
+                                                        'ID Picture' => 'id_picture',
+                                                        'Enrollment Form' => 'enrollment_form',
+                                                        default => ''
+                                                    };
+                                                    $fileExt = pathinfo($doc['path'], PATHINFO_EXTENSION);
+                                                @endphp
+                                                <button onclick="openDocumentModal('{{ route('admin.students.document.view', ['student' => $student->id, 'type' => $docType]) }}', {{ json_encode($doc['name']) }}, '{{ strtolower($fileExt) }}')" 
+                                                        class="btn-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            @else
+                                                <span class="document-status missing">Missing</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1785,20 +1717,6 @@
 
     <!-- Floating Action Buttons -->
     <div class="fab-container" x-data="{ idCardOpen: false }">
-        <form id="deleteForm" action="{{ route('admin.students.destroy', $student->id) }}" method="POST" class="m-0 p-0">
-            @csrf
-            @method('DELETE')
-            <button type="button" onclick="confirmDelete()" class="fab-btn delete">
-                <i class="fas fa-trash-alt"></i>
-                <span class="fab-tooltip">Delete Student</span>
-            </button>
-        </form>
-        
-        <button onclick="window.print()" class="fab-btn print">
-            <i class="fas fa-print"></i>
-            <span class="fab-tooltip">Print Profile</span>
-        </button>
-        
         <a href="{{ route('admin.students.edit', $student->id) }}" class="fab-btn edit">
             <i class="fas fa-edit"></i>
             <span class="fab-tooltip">Edit Student</span>
@@ -1880,7 +1798,7 @@
 
         // Confirm delete
         function confirmDelete() {
-            if(confirm('⚠️ Are you sure you want to delete this student?\n\nThis action cannot be undone.')) {
+            if(confirm('âš ï¸ Are you sure you want to delete this student?\n\nThis action cannot be undone.')) {
                 document.getElementById('deleteForm').submit();
             }
         }
@@ -1927,7 +1845,7 @@
             if (fileTypeLower === 'pdf') {
                 contentHtml = `<iframe src="${urlWithCache}" class="w-full" style="border: none; height: 75vh;" type="application/pdf"></iframe>`;
             } else if (['jpg', 'jpeg', 'png'].includes(fileTypeLower)) {
-                contentHtml = `<div class="flex justify-center p-4" style="min-height: 400px;"><img src="${urlWithCache}" alt="${title}" style="max-width: 100%; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"></div>`;
+                contentHtml = `<div class="flex justify-center p-4" style="min-height: 400px;"><img id="docPreviewImg" src="${urlWithCache}" alt="${title}" style="max-width: 100%; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" onerror="this.style.display='none'; document.getElementById('docPreviewError').style.display='flex';"><div id="docPreviewError" style="display:none; flex-direction:column; align-items:center; justify-content:center; min-height:400px;"><div style="width:80px; height:80px; background:linear-gradient(135deg,#fef3c7,#fde68a); border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;"><i class="fas fa-exclamation-triangle" style="font-size:32px; color:#d97706;"></i></div><h4 style="font-size:20px; font-weight:700; color:#1e293b; margin-bottom:10px;">Document Preview Unavailable</h4><p style="color:#64748b; text-align:center; margin-bottom:20px;">The file could not be loaded. It may be missing or corrupted.</p><a href="${urlWithCache}" download class="btn-primary"><i class="fas fa-download"></i> Download File</a></div></div>`;
             } else {
                 contentHtml = `
                     <div class="flex flex-col items-center justify-center p-8" style="min-height: 400px;">
@@ -1971,9 +1889,9 @@
     <!-- Document Viewer Modal -->
     <div id="documentModalBackdrop" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50" style="display: none;" onclick="closeDocumentModal()"></div>
     <div id="documentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden" style="max-height: 90vh;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col" style="max-height: 90vh;">
             <!-- Header -->
-            <div class="flex items-center justify-between p-5 border-b" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+            <div class="flex items-center justify-between p-5 border-b flex-shrink-0" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
                 <div class="flex items-center gap-3">
                     <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-file-alt" style="color: white; font-size: 20px;"></i>
@@ -1989,12 +1907,12 @@
             </div>
             
             <!-- Content -->
-            <div id="documentModalContent" class="bg-slate-50" style="max-height: 75vh; overflow-y: auto;">
+            <div id="documentModalContent" class="bg-slate-50 flex-1" style="overflow-y: auto; min-height: 0;">
                 <!-- Content will be injected here -->
             </div>
             
             <!-- Footer -->
-            <div class="flex items-center justify-between p-4 border-t bg-slate-50">
+            <div class="flex items-center justify-between p-4 border-t bg-slate-50 flex-shrink-0">
                 <div class="text-slate-500" style="font-size: 13px;">
                     <i class="fas fa-info-circle mr-1"></i>
                     Use browser zoom (Ctrl +/-) to resize

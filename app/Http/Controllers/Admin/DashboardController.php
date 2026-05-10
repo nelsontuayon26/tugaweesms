@@ -6,9 +6,117 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Section;
 use App\Models\SchoolYear;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /**
+     * Global search across students, teachers, sections, and announcements
+     */
+    public function search(Request $request)
+    {
+        $query = $request->get('q');
+        $limit = 5;
+
+        if (empty($query) || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $like = '%' . $query . '%';
+
+        // Search students (via user relationship + LRN)
+        $students = \App\Models\Student::with(['user', 'gradeLevel', 'section'])
+            ->where(function ($q) use ($like) {
+                $q->where('lrn', 'like', $like)
+                  ->orWhereHas('user', function ($uq) use ($like) {
+                      $uq->where('first_name', 'like', $like)
+                         ->orWhere('last_name', 'like', $like)
+                         ->orWhere('email', 'like', $like)
+                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", [$like]);
+                  });
+            })
+            ->limit($limit)
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'title' => $student->full_name ?? 'Unknown',
+                    'subtitle' => $student->lrn ? 'LRN: ' . $student->lrn : ($student->user->email ?? ''),
+                    'meta' => ($student->gradeLevel->name ?? '') . ($student->section ? ' — ' . $student->section->name : ''),
+                    'url' => route('admin.students.show', $student->id),
+                    'type' => 'student',
+                    'icon' => 'fa-user-graduate',
+                    'color' => 'blue',
+                ];
+            });
+
+        // Search teachers
+        $teachers = \App\Models\Teacher::where(function ($q) use ($like) {
+                $q->where('first_name', 'like', $like)
+                  ->orWhere('last_name', 'like', $like)
+                  ->orWhere('email', 'like', $like)
+                  ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", [$like]);
+            })
+            ->limit($limit)
+            ->get()
+            ->map(function ($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'title' => $teacher->full_name ?? 'Unknown',
+                    'subtitle' => $teacher->email ?? '',
+                    'meta' => $teacher->position ?? 'Teacher',
+                    'url' => route('admin.teachers.show', $teacher->id),
+                    'type' => 'teacher',
+                    'icon' => 'fa-chalkboard-teacher',
+                    'color' => 'purple',
+                ];
+            });
+
+        // Search sections
+        $sections = \App\Models\Section::with(['gradeLevel', 'teacher.user'])
+            ->where('name', 'like', $like)
+            ->limit($limit)
+            ->get()
+            ->map(function ($section) {
+                return [
+                    'id' => $section->id,
+                    'title' => $section->name,
+                    'subtitle' => $section->gradeLevel->name ?? '',
+                    'meta' => $section->teacher->user->full_name ?? 'No adviser',
+                    'url' => route('admin.sections.show', $section->id),
+                    'type' => 'section',
+                    'icon' => 'fa-th-large',
+                    'color' => 'emerald',
+                ];
+            });
+
+        // Search announcements
+        $announcements = \App\Models\Announcement::with('author')
+            ->where('title', 'like', $like)
+            ->limit($limit)
+            ->get()
+            ->map(function ($announcement) {
+                return [
+                    'id' => $announcement->id,
+                    'title' => $announcement->title,
+                    'subtitle' => 'By ' . ($announcement->author->full_name ?? 'Admin'),
+                    'meta' => $announcement->created_at->diffForHumans(),
+                    'url' => route('admin.announcements.show', $announcement->id),
+                    'type' => 'announcement',
+                    'icon' => 'fa-bullhorn',
+                    'color' => 'amber',
+                ];
+            });
+
+        return response()->json([
+            'students' => $students,
+            'teachers' => $teachers,
+            'sections' => $sections,
+            'announcements' => $announcements,
+            'query' => $query,
+        ]);
+    }
+
     /**
      * Load the dashboard view with counts filtered by active school year
      */

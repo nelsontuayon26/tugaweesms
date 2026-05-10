@@ -471,9 +471,35 @@
         </tr>
         @php $currentSection = $sectionName; @endphp
     @endif
-    <tr class="student-row" data-grade="{{ $gradeLevelName }}" data-section="{{ $sectionName }}" data-name="{{ strtolower($student->full_name) }}" data-lrn="{{ strtolower($student->lrn ?? '') }}">
+    <tr class="student-row"
+        data-grade="{{ $gradeLevelName }}"
+        data-section="{{ $sectionName }}"
+        data-school-year="{{ $schoolYear->name ?? $activeSchoolYear?->name ?? '' }}"
+        data-status="{{ $enrollment?->status ?? 'pending' }}"
+        data-name="{{ strtolower($student->full_name) }}"
+        data-lrn="{{ strtolower($student->lrn ?? '') }}"
+        data-last-name="{{ $student->user->last_name ?? '' }}"
+        data-first-name="{{ $student->user->first_name ?? '' }}"
+        data-middle-name="{{ $student->user->middle_name ?? '' }}"
+        data-gender="{{ $student->gender ?? '' }}"
+        data-birthdate="{{ $student->birthdate ?? '' }}"
+        data-mother-tongue="{{ $student->mother_tongue ?? '' }}"
+        data-ethnicity="{{ $student->ethnicity ?? '' }}"
+        data-religion="{{ $student->religion ?? '' }}"
+        data-street="{{ $student->street_address ?? '' }}"
+        data-barangay="{{ $student->barangay ?? '' }}"
+        data-city="{{ $student->city ?? '' }}"
+        data-province="{{ $student->province ?? '' }}"
+        data-zip="{{ $student->zip_code ?? '' }}"
+        data-father="{{ $student->father_name ?? '' }}"
+        data-mother="{{ $student->mother_name ?? '' }}"
+        data-guardian="{{ $student->guardian_name ?? '' }}"
+        data-guardian-relationship="{{ $student->guardian_relationship ?? '' }}"
+        data-guardian-contact="{{ $student->guardian_contact ?? '' }}"
+        data-remarks="{{ $student->remarks ?? '' }}"
+    >
         <td>
-            <input type="checkbox" class="custom-checkbox student-checkbox" value="{{ $student->id }}">
+            <input type="checkbox" class="custom-checkbox student-checkbox" value="{{ $student->id }}" onchange="updateSelection()">
         </td>
         
         <!-- Student Information -->
@@ -707,6 +733,58 @@
         </div>
     </div>
 
+    <!-- Bulk Actions Toolbar -->
+    <div id="bulkActionsBar" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 hidden">
+        <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-4 animate-fade-in-up">
+            <div class="flex items-center gap-2">
+                <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold" id="selectedCount">0</span>
+                <span class="text-sm font-medium">selected</span>
+            </div>
+            <div class="w-px h-5 bg-slate-700"></div>
+            <button onclick="exportSelected()" class="text-sm font-medium hover:text-blue-300 transition-colors flex items-center gap-1.5">
+                <i class="fas fa-download text-xs"></i>
+                Export
+            </button>
+            <button onclick="printSelected()" class="text-sm font-medium hover:text-blue-300 transition-colors flex items-center gap-1.5">
+                <i class="fas fa-print text-xs"></i>
+                Print
+            </button>
+            <button onclick="openBulkDeleteModal()" class="text-sm font-medium hover:text-red-300 transition-colors flex items-center gap-1.5">
+                <i class="fas fa-trash-alt text-xs"></i>
+                Delete
+            </button>
+            <button onclick="clearSelection()" class="text-sm text-slate-400 hover:text-white transition-colors ml-1">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Confirmation Modal -->
+    <div id="bulkDeleteModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeBulkDeleteModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 w-96">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Delete Selected Pupils?</h3>
+                <p class="text-sm text-slate-500">Are you sure you want to delete <span id="bulkDeleteCount" class="font-bold text-slate-700">0</span> selected pupil(s)? This action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeBulkDeleteModal()" class="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <form id="bulkDeleteForm" method="POST" action="{{ route('admin.students.bulk-destroy') }}" class="flex-1">
+                    @csrf
+                    <input type="hidden" name="ids[]" id="bulkDeleteIds">
+                    <button type="submit" class="w-full px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-lg shadow-red-500/30">
+                        Delete Selected
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
@@ -800,6 +878,39 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAll.checked;
             });
+            updateSelection();
+        }
+
+        // Track checkbox selections and show/hide bulk actions toolbar
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+            const toolbar = document.getElementById('bulkActionsBar');
+            const countEl = document.getElementById('selectedCount');
+            const count = checkboxes.length;
+            
+            countEl.textContent = count;
+            
+            if (count > 0) {
+                toolbar.classList.remove('hidden');
+            } else {
+                toolbar.classList.add('hidden');
+                document.getElementById('selectAll').checked = false;
+            }
+        }
+
+        function getSelectedRows() {
+            const checked = document.querySelectorAll('.student-checkbox:checked');
+            if (checked.length === 0) {
+                // If none selected, return all visible rows
+                return Array.from(document.querySelectorAll('.student-row')).filter(r => r.style.display !== 'none');
+            }
+            return Array.from(checked).map(cb => cb.closest('.student-row'));
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
         }
 
         // Sort Table
@@ -833,38 +944,205 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
             document.getElementById('deleteModal').classList.add('hidden');
         }
 
-        // Export Data
-        function exportData() {
-            // Simple CSV export
-            const rows = document.querySelectorAll('.student-row');
-            let csv = 'ID,Name,Grade,Section,Email,Status,Enrolled Date\\n';
+        // Bulk Delete
+        function openBulkDeleteModal() {
+            const checked = document.querySelectorAll('.student-checkbox:checked');
+            if (checked.length === 0) return;
             
-            rows.forEach(row => {
-                if (row.style.display !== 'none') {
-                    const cells = row.querySelectorAll('td');
-                    const id = cells[1].querySelector('p.text-xs').textContent.replace('ID: ', '').split('•')[0].trim();
-                    const name = cells[1].querySelector('p.font-bold').textContent;
-                    const grade = cells[2].querySelector('span').textContent;
-                    const section = cells[2].querySelector('span.text-xs').textContent.trim();
-                    const email = cells[3].querySelector('span').textContent.trim();
-                    const status = cells[4].textContent.trim();
-                    const date = cells[5].querySelector('span.text-sm').textContent;
-                    
-                    csv += `"${id}","${name}","${grade}","${section}","${email}","${status}","${date}"\\n`;
-                }
+            document.getElementById('bulkDeleteCount').textContent = checked.length;
+            
+            // Create hidden inputs for each selected ID
+            const ids = Array.from(checked).map(cb => cb.value);
+            const form = document.getElementById('bulkDeleteForm');
+            
+            // Remove old hidden inputs
+            form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+            
+            // Add new hidden inputs
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
             });
             
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `students_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
+            document.getElementById('bulkDeleteModal').classList.remove('hidden');
+        }
+
+        function closeBulkDeleteModal() {
+            document.getElementById('bulkDeleteModal').classList.add('hidden');
+        }
+
+        // Export Data (SF1 format via server)
+        function exportData() {
+            const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+            if (checkboxes.length === 0) {
+                // Export all visible rows if none selected
+                const visibleRows = Array.from(document.querySelectorAll('.student-row')).filter(r => r.style.display !== 'none');
+                const ids = visibleRows.map(row => row.querySelector('.student-checkbox').value);
+                submitExportForm(ids);
+            } else {
+                exportSelected();
+            }
+        }
+
+        function exportSelected() {
+            const checkboxes = document.querySelectorAll('.student-checkbox:checked');
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            submitExportForm(ids);
+        }
+
+        function submitExportForm(ids) {
+            if (ids.length === 0) {
+                alert('No pupils to export.');
+                return;
+            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("admin.students.export-csv") }}';
+            form.style.display = 'none';
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
         }
 
         // Print Table
         function printTable() {
-            window.print();
+            printRows(getSelectedRows());
+        }
+
+        function printSelected() {
+            printRows(getSelectedRows());
+        }
+
+        function printRows(rows) {
+            let iframe = document.getElementById('printIframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'printIframe';
+                iframe.style.position = 'absolute';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.visibility = 'hidden';
+                document.body.appendChild(iframe);
+            }
+
+            let html = '<' + 'html><' + 'head><' + 'title>Pupil List<' + '/title><' + 'style>' +
+                '@page { size: landscape; margin: 10mm; }' +
+                'body { font-family: Arial, sans-serif; padding: 10px; font-size: 10px; }' +
+                'table { width: 100%; border-collapse: collapse; margin-top: 10px; }' +
+                'th, td { border: 1px solid #000; padding: 4px 6px; text-align: left; vertical-align: top; }' +
+                'th { background: #e5e7eb; font-weight: bold; font-size: 9px; text-transform: uppercase; }' +
+                'h2 { margin: 0 0 5px 0; font-size: 14px; }' +
+                '.meta { font-size: 10px; margin-bottom: 10px; }' +
+                '<' + '/style><' + '/head><' + 'body>' +
+                '<h2>School Form 1 (SF1) - School Register</h2>' +
+                '<p class="meta">Generated on ' + new Date().toLocaleDateString() + '</p>' +
+                '<table><thead><tr>' +
+                '<th style="width:3%">No.</th>' +
+                '<th style="width:8%">LRN</th>' +
+                '<th style="width:10%">Name</th>' +
+                '<th style="width:6%">School Year</th>' +
+                '<th style="width:5%">Status</th>' +
+                '<th style="width:8%">Grade & Section</th>' +
+                '<th style="width:3%">Sex</th>' +
+                '<th style="width:5%">Birth Date</th>' +
+                '<th style="width:3%">Age</th>' +
+                '<th style="width:5%">Mother Tongue</th>' +
+                '<th style="width:5%">IP</th>' +
+                '<th style="width:5%">Religion</th>' +
+                '<th style="width:10%">Address</th>' +
+                '<th style="width:8%">Father\'s Name</th>' +
+                '<th style="width:8%">Mother\'s Name</th>' +
+                '<th style="width:8%">Guardian\'s Name</th>' +
+                '<th style="width:4%">Relationship</th>' +
+                '<th style="width:5%">Contact</th>' +
+                '<th style="width:5%">Remarks</th>' +
+                '<' + '/tr><' + '/thead><' + 'tbody>';
+
+            let no = 1;
+            rows.forEach(row => {
+                if (row.style.display !== 'none') {
+                    const d = row.dataset;
+                    const gender = (d.gender || '').toUpperCase();
+                    const sex = gender === 'MALE' || gender === 'M' ? 'M' : (gender === 'FEMALE' || gender === 'F' ? 'F' : '');
+                    let birthDate = '';
+                    if (d.birthdate) {
+                        const bd = new Date(d.birthdate);
+                        if (!isNaN(bd)) {
+                            birthDate = (bd.getMonth() + 1).toString().padStart(2, '0') + '/' + bd.getDate().toString().padStart(2, '0') + '/' + bd.getFullYear();
+                        }
+                    }
+                    let age = '';
+                    if (d.birthdate) {
+                        const bd = new Date(d.birthdate);
+                        const today = new Date();
+                        age = today.getFullYear() - bd.getFullYear();
+                        const m = today.getMonth() - bd.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
+                    }
+                    const name = (d.lastName || '') + ', ' + (d.firstName || '') + ' ' + (d.middleName || '');
+                    const addrParts = [d.street, d.barangay, d.city, (d.province || '') + (d.zip ? ' ' + d.zip : '')].filter(Boolean);
+                    const address = addrParts.join(', ');
+
+                    const gradeSection = (d.grade || '') + (d.grade && d.section ? ' - ' : '') + (d.section || '');
+
+                    html += '<tr>' +
+                        '<td>' + (no++) + '</td>' +
+                        '<td>' + (d.lrn || '') + '</td>' +
+                        '<td>' + name.trim() + '</td>' +
+                        '<td>' + (d.schoolYear || '') + '</td>' +
+                        '<td>' + (d.status || '') + '</td>' +
+                        '<td>' + gradeSection + '</td>' +
+                        '<td>' + sex + '</td>' +
+                        '<td>' + birthDate + '</td>' +
+                        '<td>' + age + '</td>' +
+                        '<td>' + (d.motherTongue || '') + '</td>' +
+                        '<td>' + (d.ethnicity || '') + '</td>' +
+                        '<td>' + (d.religion || '') + '</td>' +
+                        '<td>' + address + '</td>' +
+                        '<td>' + (d.father || '') + '</td>' +
+                        '<td>' + (d.mother || '') + '</td>' +
+                        '<td>' + (d.guardian || '') + '</td>' +
+                        '<td>' + (d.guardianRelationship || '') + '</td>' +
+                        '<td>' + (d.guardianContact || '') + '</td>' +
+                        '<td>' + (d.remarks || '') + '</td>' +
+                        '<' + '/tr>';
+                }
+            });
+
+            html += '<' + '/tbody><' + '/table><' + '/body><' + '/html>';
+
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(html);
+            doc.close();
+
+            iframe.onload = function() {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            };
+            if (doc.readyState === 'complete') {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            }
         }
 
         // Keyboard shortcuts
@@ -875,6 +1153,7 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
             }
             if (e.key === 'Escape') {
                 closeDeleteModal();
+                closeBulkDeleteModal();
             }
         });
 
@@ -882,6 +1161,11 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
         document.getElementById('deleteModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeleteModal();
+            }
+        });
+        document.getElementById('bulkDeleteModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBulkDeleteModal();
             }
         });
     </script>

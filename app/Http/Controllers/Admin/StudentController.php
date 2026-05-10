@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Setting;
 use App\Services\SettingsEnforcer;
+use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -252,6 +253,11 @@ class StudentController extends Controller
                 ]);
             }
 
+            $newValues = $student->toArray();
+            if (isset($newValues['user']['photo']) && strlen($newValues['user']['photo']) > 100) {
+                $newValues['user']['photo'] = '[photo uploaded]';
+            }
+            \App\Models\ActivityLog::log('created', 'Student', $student->id, 'Created new Student', null, $newValues);
             DB::commit();
             return redirect()->route('admin.students.index')->with('success', 'Student created successfully.');
         } catch (\Exception $e) {
@@ -270,7 +276,19 @@ class StudentController extends Controller
                   ->with('section.gradeLevel');
         }]);
         
-        return view('admin.students.show', compact('student'));
+        $schoolSettings = Setting::where('group', 'school')->get()->keyBy('key')->map->value;
+        $schoolId = $schoolSettings['deped_school_id'] ?? '';
+        $schoolName = $schoolSettings['school_name'] ?? '';
+        $schoolDivision = $schoolSettings['school_division'] ?? '';
+        $schoolRegion = $schoolSettings['school_region'] ?? '';
+        $schoolHead = $schoolSettings['school_head'] ?? Setting::where('key', 'school_head')->value('value') ?? '';
+        
+        $activityLogs = \App\Models\ActivityLog::forEntity('Student', $student->id)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('admin.students.show', compact('student', 'activeSchoolYear', 'schoolId', 'schoolName', 'schoolDivision', 'schoolRegion', 'schoolHead', 'activityLogs'));
     }
 
     public function edit(Student $student)
@@ -346,6 +364,9 @@ class StudentController extends Controller
 
         DB::beginTransaction();
         try {
+            $oldStudentData = $student->toArray();
+            $oldUserData = $student->user->toArray();
+            
             $userData = [
                 'username' => $request->username,
                 'email' => $request->email,
@@ -407,6 +428,37 @@ class StudentController extends Controller
             }
 
             $student->update($studentData);
+            
+            // Compute only changed fields for clean audit log
+            $changedOld = [];
+            $changedNew = [];
+            $userFields = ['username','email','first_name','middle_name','last_name','suffix'];
+            foreach ($userFields as $key) {
+                $oldVal = $oldUserData[$key] ?? null;
+                $newVal = $userData[$key] ?? null;
+                if ($oldVal != $newVal) {
+                    $changedOld['user_' . $key] = $oldVal;
+                    $changedNew['user_' . $key] = $newVal;
+                }
+            }
+            if (($oldUserData['photo'] ?? null) != ($userData['photo'] ?? null)) {
+                $changedOld['user_photo'] = !empty($oldUserData['photo']) ? '[photo changed]' : null;
+                $changedNew['user_photo'] = '[photo changed]';
+            }
+            if ($request->filled('password')) {
+                $changedOld['user_password'] = '[changed]';
+                $changedNew['user_password'] = '[changed]';
+            }
+            foreach ($studentData as $key => $newVal) {
+                $oldVal = $oldStudentData[$key] ?? null;
+                if ($oldVal != $newVal) {
+                    $changedOld[$key] = $oldVal;
+                    $changedNew[$key] = $newVal;
+                }
+            }
+            if (!empty($changedOld)) {
+                \App\Models\ActivityLog::log('updated', 'Student', $student->id, 'Updated Student', $changedOld, $changedNew);
+            }
 
             $activeSchoolYear = SchoolYear::where('is_active', true)->first();
             if ($activeSchoolYear) {
@@ -438,6 +490,7 @@ class StudentController extends Controller
     {
         DB::beginTransaction();
         try {
+            \App\Services\ActivityLogService::logDeleted($student, 'Student');
             $student->user->delete();
             $student->delete();
             DB::commit();
@@ -446,6 +499,128 @@ class StudentController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to delete student: ' . $e->getMessage());
         }
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:students,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $students = Student::whereIn('id', $request->ids)->with('user')->get();
+            foreach ($students as $student) {
+                if ($student->user) {
+                    $student->user->delete();
+                }
+                $student->delete();
+            }
+            DB::commit();
+            return redirect()->route('admin.students.index')->with('success', count($request->ids) . ' pupil(s) deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to delete pupils: ' . $e->getMessage());
+        }
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:students,id',
+        ]);
+
+        $activeSchoolYear = SchoolYear::where('is_active', true)->first();
+
+        $students = Student::with(['user', 'enrollments.section.gradeLevel'])
+            ->whereIn('id', $request->ids)
+            ->get()
+            ->sortBy(function ($student) {
+                $gender = strtoupper($student->gender ?? '');
+                $genderOrder = in_array($gender, ['MALE', 'M']) ? 0 : 1;
+                return [$genderOrder, $student->user->last_name ?? '', $student->user->first_name ?? ''];
+            });
+
+        $headers = [
+            'NO.', 'LRN', 'Name', 'School Year', 'Status', 'Grade & Section',
+            'Sex (M/F)', 'Birth Date (mm/dd/yyyy)', 'Age', 'Mother Tongue', 'IP (Ethnic Group)',
+            'Religion', 'Address',
+            'Father\'s Name', 'Mother\'s Maiden Name', 'Guardian\'s Name',
+            'Relationship to Guardian', 'Contact Number', 'Remarks'
+        ];
+
+        $csv = "\xEF\xBB\xBF";
+        $csv .= implode(',', array_map(fn($h) => '"' . str_replace('"', '""', $h) . '"', $headers)) . "\n";
+
+        $maleCounter = 0;
+        $femaleCounter = 0;
+
+        foreach ($students as $student) {
+            $user = $student->user;
+            $gender = strtoupper($student->gender ?? '');
+            $isMale = in_array($gender, ['MALE', 'M']);
+            $sexCode = $isMale ? 'M' : 'F';
+
+            if ($isMale) {
+                $maleCounter++;
+                $no = $maleCounter;
+            } else {
+                $femaleCounter++;
+                $no = $femaleCounter;
+            }
+
+            $birthDate = $student->birthdate ? Carbon::parse($student->birthdate)->format('m/d/Y') : '';
+            $age = $student->age ?? '';
+
+            $fullName = trim(($user->last_name ?? '') . ', ' . ($user->first_name ?? '') . ' ' . ($user->middle_name ?? ''));
+            $addressParts = array_filter([
+                $student->street_address ?? '',
+                $student->barangay ?? '',
+                $student->city ?? '',
+                ($student->province ?? '') . ($student->zip_code ? ' ' . $student->zip_code : ''),
+            ]);
+            $address = implode(', ', $addressParts);
+
+            $enrollment = $student->enrollments->first();
+            $gradeLevel = $enrollment?->section?->gradeLevel?->name ?? '';
+            $section = $enrollment?->section?->name ?? '';
+            $gradeSection = trim($gradeLevel . ($gradeLevel && $section ? ' - ' : '') . $section);
+            $schoolYearName = $activeSchoolYear?->name ?? '';
+            $status = $enrollment?->status ?? 'pending';
+
+            $row = [
+                $no,
+                $student->lrn ?? '',
+                $fullName,
+                $schoolYearName,
+                $status,
+                $gradeSection,
+                $sexCode,
+                $birthDate,
+                $age,
+                $student->mother_tongue ?? '',
+                $student->ethnicity ?? '',
+                $student->religion ?? '',
+                $address,
+                $student->father_name ?? '',
+                $student->mother_name ?? '',
+                $student->guardian_name ?? '',
+                $student->guardian_relationship ?? '',
+                $student->guardian_contact ?? '',
+                $student->remarks ?? '',
+            ];
+
+            $csv .= implode(',', array_map(fn($cell) => '"' . str_replace('"', '""', $cell) . '"', $row)) . "\n";
+        }
+
+        $filename = 'SF1_Export_' . now()->format('Y-m-d_His') . '.csv';
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 
     public function idCard(Student $student)

@@ -1043,124 +1043,126 @@ private function getRemarks($status, $finalAverage, $selectedSection)
 
     /**
      * SF7 - School Personnel Assignment List and Basic Profile
+     * Official DepEd SF7 template — school-wide personnel listing
      */
     public function sf7(Request $request)
     {
-        $sections = $this->getTeacherSections();
-        
         // Get active school year
         $activeSchoolYear = SchoolYear::where('is_active', true)->first();
         if (!$activeSchoolYear) {
             $activeSchoolYear = SchoolYear::latest('start_date')->first();
         }
-        
-    // Get school settings (only for school info, not for active year)
-    $schoolSettings = Setting::where('group', 'school')->get()->keyBy('key')->map->value;
-    
-    $schoolId = $schoolSettings['deped_school_id'] ?? '';
-    $schoolName = $schoolSettings['school_name'] ?? '';
-    $schoolDivision = $schoolSettings['school_division'] ?? '';
-    $schoolRegion = $schoolSettings['school_region'] ?? '';
-    $schoolDistrict = $schoolSettings['school_district'] ?? '';
-    $schoolHead = $schoolSettings['school_head'] 
-        ?? Setting::where('key', 'school_head')->value('value') 
-        ?? '';
-        
-        // Get selected section
-        $selectedSection = $request->section_id 
-            ? Section::with(['gradeLevel', 'teacher.user'])->find($request->section_id)
-            : $sections->first()?->load(['gradeLevel', 'teacher.user']);
-        
-        // Get teacher
-        $teacher = auth()->user()->teacher ?? null;
-        $teacherUser = auth()->user();
-        
-        $teacherProfile = null;
-        $teachingPrograms = collect();
-        $subjects = collect();
-        
-        if ($teacher && $selectedSection) {
-            // Get adviser name
-            $adviserName = '';
-            $adviserUser = $selectedSection->teacher?->user;
-            if ($adviserUser) {
-                $adviserName = ($adviserUser->last_name ?? '') . ', ' . 
-                              ($adviserUser->first_name ?? '') . ' ' . 
-                              ($adviserUser->middle_name ?? '');
-                $adviserName = trim($adviserName) ?: ($adviserUser->name ?? '');
+
+        // School settings
+        $schoolSettings = Setting::where('group', 'school')->get()->keyBy('key')->map->value;
+        $schoolId = $schoolSettings['deped_school_id'] ?? '';
+        $schoolName = $schoolSettings['school_name'] ?? '';
+        $schoolDivision = $schoolSettings['school_division'] ?? '';
+        $schoolRegion = $schoolSettings['school_region'] ?? '';
+        $schoolDistrict = $schoolSettings['school_district'] ?? '';
+        $schoolHead = $schoolSettings['school_head']
+            ?? Setting::where('key', 'school_head')->value('value')
+            ?? '';
+
+        // Load ALL school personnel (teachers) for the active school year
+        $personnel = Teacher::with(['user', 'sections.gradeLevel'])
+            ->whereNotIn('status', ['inactive'])
+            ->orderByRaw("
+                FIELD(position, 'School Principal', 'Principal', 'Head Teacher', 'Master Teacher II', 'Master Teacher I', 'Teacher III', 'Teacher II', 'Teacher I'),
+                last_name ASC
+            ")
+            ->get();
+
+        // Load teaching programs for all personnel in active year
+        $allPrograms = TeachingProgram::with(['teacher', 'section.gradeLevel'])
+            ->where('school_year_id', $activeSchoolYear?->id)
+            ->orderByRaw("FIELD(day, 'M', 'T', 'W', 'TH', 'F')")
+            ->orderBy('time_from')
+            ->get()
+            ->groupBy('teacher_id');
+
+        // Build personnel rows
+        $personnelList = $personnel->map(function ($teacher) use ($allPrograms, $activeSchoolYear) {
+            $user = $teacher->user;
+            $programs = $allPrograms->get($teacher->id, collect());
+
+            // Format subjects taught (include grade & section, advisory, ancillary)
+            $subjectsTaught = collect();
+            $advisoryClasses = $teacher->sections->pluck('name')->filter()->unique()->values();
+
+            foreach ($programs as $prog) {
+                $gradeSection = '';
+                if ($prog->section && $prog->section->gradeLevel) {
+                    $gradeSection = $prog->section->gradeLevel->name . ' - ' . $prog->section->name;
+                }
+                $subjectsTaught->push([
+                    'subject' => $prog->subject ?? $prog->activity ?? 'Teaching',
+                    'grade_section' => $gradeSection,
+                ]);
             }
-            
-            // Get ONLY currently enrolled students (not completed, not inactive)
-            $enrollments = Enrollment::where('section_id', $selectedSection->id)
-                ->where('school_year_id', $activeSchoolYear->id)
-                ->whereIn('status', ['enrolled', 'completed'])
-                ->with('student')
-                ->get();
-            
-            $totalStudents = $enrollments->count();
-            $maleStudents = $enrollments->filter(function($e) {
-                $gender = strtoupper($e->student->gender ?? '');
-                return $gender == 'MALE' || $gender == 'M';
-            })->count();
-            $femaleStudents = $totalStudents - $maleStudents;
-            
-            // Get REAL subjects from database based on grade level
-            $subjects = Subject::where('grade_level_id', $selectedSection->grade_level_id)
-                ->orderBy('name')
-                ->get();
-            
-            // Get teaching programs from database
-            $teachingPrograms = TeachingProgram::where('teacher_id', $teacher->id)
-                ->where('section_id', $selectedSection->id)
-                ->where('school_year_id', $activeSchoolYear->id)
-                ->orderByRaw("FIELD(day, 'M', 'T', 'W', 'TH', 'F')")
-                ->orderBy('time_from')
-                ->get();
-            
-            // Build teacher profile with real data
-            $teacherProfile = [
-                'employee_no' => $teacher->employee_no ?? $teacherUser->id ?? 'N/A',
-                'tin' => $teacher->tin ?? 'N/A',
-                'full_name' => $adviserName,
-                'last_name' => $adviserUser->last_name ?? '',
-                'first_name' => $adviserUser->first_name ?? '',
-                'middle_name' => $adviserUser->middle_name ?? '',
-                'name_extension' => $teacher->name_extension ?? '',
-                'sex' => strtoupper($adviserUser->gender ?? '') == 'MALE' || strtoupper($adviserUser->gender ?? '') == 'M' ? 'M' : 'F',
-                'birthdate' => $teacher->birthdate ? Carbon::parse($teacher->birthdate)->format('m/d/Y') : '',
-                'age' => $teacher->birthdate ? Carbon::parse($teacher->birthdate)->age : '',
-                'contact_no' => $teacher->contact_no ?? $teacherUser->phone ?? '',
-                'email' => $teacherUser->email ?? '',
-                
-                'position' => $teacher->position ?? 'Teacher I',
-                'nature_of_appointment' => $teacher->nature_of_appointment ?? 'Permanent',
-                'fund_source' => $teacher->fund_source ?? 'National',
-                'date_of_appointment' => $teacher->date_of_appointment ? Carbon::parse($teacher->date_of_appointment)->format('m/d/Y') : '',
-                'years_in_service' => $teacher->date_of_appointment ? Carbon::parse($teacher->date_of_appointment)->diffInYears(now()) : '',
-                
-                'highest_degree' => $teacher->highest_degree ?? 'Bachelor of Elementary Education',
-                'major' => $teacher->major ?? 'General Education',
+
+            // Remove duplicate subject entries
+            $subjectsTaught = $subjectsTaught->unique(function ($item) {
+                return $item['subject'] . '|' . $item['grade_section'];
+            })->values();
+
+            // Format daily program
+            $dailyProgram = $programs->map(function ($prog) {
+                return [
+                    'day' => $prog->day,
+                    'from' => $prog->time_from ? Carbon::parse($prog->time_from)->format('h:i A') : '',
+                    'to' => $prog->time_to ? Carbon::parse($prog->time_to)->format('h:i A') : '',
+                    'minutes' => $prog->minutes ?? 0,
+                ];
+            });
+
+            $totalMinutes = $dailyProgram->sum('minutes');
+
+            return [
+                'employee_no' => $teacher->teacher_id ?? $teacher->deped_id ?? $teacher->tin_id ?? 'N/A',
+                'tin' => $teacher->tin_id ?? '',
+                'full_name' => $user ? trim("{$user->last_name}, {$user->first_name} {$user->middle_name}") : $teacher->full_name,
+                'last_name' => $user->last_name ?? $teacher->last_name ?? '',
+                'first_name' => $user->first_name ?? $teacher->first_name ?? '',
+                'middle_name' => $user->middle_name ?? $teacher->middle_name ?? '',
+                'sex' => (strtoupper($user->gender ?? $teacher->gender ?? '') == 'MALE' || strtoupper($user->gender ?? $teacher->gender ?? '') == 'M') ? 'M' : 'F',
+                'fund_source' => 'National', // Default; no fund_source column exists
+                'position' => $teacher->position ?? $teacher->designation ?? 'Teacher I',
+                'nature_of_appointment' => $teacher->employment_status ?? 'Permanent',
+                'highest_degree' => $teacher->highest_education ?? $teacher->degree_program ?? '',
+                'major' => $teacher->major ?? '',
                 'minor' => $teacher->minor ?? '',
-                'prc_license_no' => $teacher->prc_license_no ?? '',
-                'prc_validity' => $teacher->prc_validity ? Carbon::parse($teacher->prc_validity)->format('m/d/Y') : '',
-                
-                'section' => $selectedSection->name ?? '',
-                'grade_level' => $selectedSection->gradeLevel->name ?? '',
-                'advisory_class' => $selectedSection->name ?? '',
-                'total_students' => $totalStudents,
-                'male_students' => $maleStudents,
-                'female_students' => $femaleStudents,
-                
-                'ancillary_assignments' => $teacher->ancillary_assignments ?? 'None',
+                'subjects_taught' => $subjectsTaught,
+                'advisory_classes' => $advisoryClasses,
+                'daily_program' => $dailyProgram,
+                'total_minutes' => $totalMinutes,
                 'remarks' => $teacher->remarks ?? '',
             ];
-        }
+        });
+
+        // Summary counts for sections A, B, C
+        // Teachers with no position set default to teaching staff
+        $teachingCount = $personnel->filter(function ($t) {
+            $pos = strtolower($t->position ?? $t->designation ?? '');
+            return empty($pos)
+                || str_contains($pos, 'teacher')
+                || str_contains($pos, 'adviser')
+                || str_contains($pos, 'head teacher')
+                || str_contains($pos, 'master teacher')
+                || str_contains($pos, 'principal');
+        })->count();
+
+        $nonTeachingCount = $personnel->filter(function ($t) {
+            $pos = strtolower($t->position ?? $t->designation ?? '');
+            if (empty($pos)) return false; // defaults to teaching
+            return !str_contains($pos, 'teacher')
+                && !str_contains($pos, 'adviser')
+                && !str_contains($pos, 'head teacher')
+                && !str_contains($pos, 'master teacher')
+                && !str_contains($pos, 'principal');
+        })->count();
 
         return view('teacher.school-forms.sf7', compact(
-            'sections',
-            'selectedSection',
-            'teacherProfile',
-            'teacher',
             'activeSchoolYear',
             'schoolId',
             'schoolName',
@@ -1168,8 +1170,9 @@ private function getRemarks($status, $finalAverage, $selectedSection)
             'schoolRegion',
             'schoolDivision',
             'schoolDistrict',
-            'subjects',
-            'teachingPrograms'
+            'personnelList',
+            'teachingCount',
+            'nonTeachingCount'
         ));
     }
 

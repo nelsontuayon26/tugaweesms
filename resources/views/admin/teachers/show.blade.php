@@ -1322,11 +1322,6 @@
                    title="Edit Teacher">
                     <i class="fas fa-edit text-lg"></i>
                 </a>
-                <button onclick="window.print()" 
-                   class="w-12 h-12 bg-white text-slate-600 hover:text-slate-900 rounded-full flex items-center justify-center shadow-lg border border-slate-200 transition-all hover:scale-110"
-                   title="Print Profile">
-                    <i class="fas fa-print text-lg"></i>
-                </button>
                 <a href="{{ route('admin.teachers.index') }}" 
                    class="w-12 h-12 bg-white text-slate-600 hover:text-slate-900 rounded-full flex items-center justify-center shadow-lg border border-slate-200 transition-all hover:scale-110"
                    title="Back to List">

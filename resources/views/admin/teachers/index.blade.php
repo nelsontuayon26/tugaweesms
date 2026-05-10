@@ -599,9 +599,31 @@
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <button onclick="exportData()" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 hover:border-purple-200 rounded-xl transition-all flex items-center gap-2 bg-white shadow-sm">
+                        <button onclick="exportSelected()" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:text-purple-600 hover:bg-purple-50 border border-slate-200 hover:border-purple-200 rounded-xl transition-all flex items-center gap-2 bg-white shadow-sm">
                             <i class="fas fa-download"></i>
                             Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Toolbar -->
+                <div id="bulkActionsBar" class="hidden mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl flex items-center justify-between animate-fade-in">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-purple-600 text-white text-xs font-bold rounded-lg" id="selectedCount">0</span>
+                        <span class="text-sm font-semibold text-slate-700">teacher(s) selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportSelected()" class="px-4 py-2 text-xs font-semibold text-purple-700 bg-white border border-purple-200 rounded-lg hover:bg-purple-50 transition-all flex items-center gap-2">
+                            <i class="fas fa-download"></i> Export Selected
+                        </button>
+                        <button onclick="printSelected()" class="px-4 py-2 text-xs font-semibold text-indigo-700 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-all flex items-center gap-2">
+                            <i class="fas fa-print"></i> Print Selected
+                        </button>
+                        <button onclick="bulkDelete()" class="px-4 py-2 text-xs font-semibold text-red-700 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-all flex items-center gap-2">
+                            <i class="fas fa-trash-alt"></i> Bulk Delete
+                        </button>
+                        <button onclick="clearSelection()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all flex items-center gap-2">
+                            <i class="fas fa-times"></i> Clear
                         </button>
                     </div>
                 </div>
@@ -646,7 +668,7 @@
                             </thead>
                             <tbody>
                                 @forelse($teachers as $teacher)
-                                <tr class="teacher-row" data-status="{{ $teacher->status }}" data-name="{{ strtolower($teacher->full_name) }}" data-subjects="{{ $teacher->subjects->pluck('name')->join(', ') }}">
+                                <tr class="teacher-row" data-status="{{ $teacher->status ?? 'active' }}" data-name="{{ strtolower($teacher->full_name) }}" data-subjects="{{ $teacher->subjects->pluck('name')->join(', ') }}" data-id="{{ $teacher->id }}" data-employee-id="{{ $teacher->employee_id ?? 'EMP-' . str_pad($teacher->id, 4, '0', STR_PAD_LEFT) }}" data-first-name="{{ $teacher->first_name }}" data-middle-name="{{ $teacher->middle_name }}" data-last-name="{{ $teacher->last_name }}" data-suffix="{{ $teacher->suffix }}" data-email="{{ $teacher->email }}" data-gender="{{ $teacher->gender }}" data-mobile="{{ $teacher->mobile_number ?? $teacher->phone ?? '' }}" data-date-hired="{{ $teacher->date_hired }}" data-street="{{ $teacher->street_address }}" data-barangay="{{ $teacher->barangay }}" data-city="{{ $teacher->city_municipality }}" data-province="{{ $teacher->province }}" data-zip="{{ $teacher->zip_code }}" data-sections="{{ $teacher->sections->map(fn($s) => $s->name . ($s->gradeLevel ? ' (' . $s->gradeLevel->name . ')' : ''))->join(', ') }}" data-subjects-list="{{ $teacher->subjects->pluck('name')->join(', ') }}">
                                     <td class="pl-6">
                                         <input type="checkbox" class="custom-checkbox teacher-checkbox" value="{{ $teacher->id }}">
                                     </td>
@@ -945,17 +967,127 @@
             });
         }
 
+        function getSelectedRows() {
+            const checked = document.querySelectorAll('.teacher-checkbox:checked');
+            if (checked.length > 0) {
+                return Array.from(checked).map(cb => cb.closest('tr'));
+            }
+            return Array.from(document.querySelectorAll('.teacher-row')).filter(r => r.style.display !== 'none');
+        }
+
+        function getSelectedIds() {
+            return getSelectedRows().map(row => row.dataset.id);
+        }
+
+        function updateBulkBar() {
+            const checked = document.querySelectorAll('.teacher-checkbox:checked');
+            const bar = document.getElementById('bulkActionsBar');
+            const countEl = document.getElementById('selectedCount');
+            const selectAll = document.getElementById('selectAll');
+            const allBoxes = document.querySelectorAll('.teacher-checkbox');
+            countEl.textContent = checked.length;
+            selectAll.checked = allBoxes.length > 0 && checked.length === allBoxes.length;
+            if (checked.length > 0) {
+                bar.classList.remove('hidden');
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
         function toggleSelectAll() {
             const selectAll = document.getElementById('selectAll');
             const checkboxes = document.querySelectorAll('.teacher-checkbox');
-            
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAll.checked;
             });
-            
+            updateBulkBar();
             if (selectAll.checked) {
                 showToast(`Selected ${checkboxes.length} teachers`);
             }
+        }
+
+        document.querySelectorAll('.teacher-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateBulkBar);
+        });
+
+        function clearSelection() {
+            document.querySelectorAll('.teacher-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateBulkBar();
+        }
+
+        function exportSelected() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                showToast('No teachers selected', 'error');
+                return;
+            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route('admin.teachers.export-csv') }}';
+            form.innerHTML = '@csrf';
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        function printSelected() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                showToast('No teachers selected', 'error');
+                return;
+            }
+            showToast('Preparing print preview...', 'success');
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            ids.forEach(id => formData.append('ids[]', id));
+            fetch('{{ route('admin.teachers.print') }}', { method: 'POST', body: formData })
+                .then(r => r.text())
+                .then(html => {
+                    let iframe = document.getElementById('printIframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.id = 'printIframe';
+                        iframe.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
+                        document.body.appendChild(iframe);
+                    }
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    doc.open(); doc.write(html); doc.close();
+                    iframe.onload = function(){ iframe.contentWindow.focus(); iframe.contentWindow.print(); };
+                    if(doc.readyState==='complete'){ iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+                })
+                .catch(() => showToast('Failed to load print preview', 'error'));
+        }
+
+        function bulkDelete() {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
+                showToast('No teachers selected', 'error');
+                return;
+            }
+            if (!confirm('Are you sure you want to delete ' + ids.length + ' selected teacher(s)? Teachers with related records (sections, assignments, schedules) will be skipped.')) {
+                return;
+            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route('admin.teachers.bulk-destroy') }}';
+            form.innerHTML = '@csrf @method('DELETE')';
+            ids.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
         }
 
         function sortTable(sortBy) {
@@ -988,33 +1120,6 @@
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.add('hidden');
-        }
-
-        function exportData() {
-            const rows = document.querySelectorAll('.teacher-row');
-            let csv = 'ID,Name,Email,Status,Hired Date\\n';
-            
-            rows.forEach(row => {
-                if (row.style.display !== 'none') {
-                    const cells = row.querySelectorAll('td');
-                    const id = cells[1].querySelector('p.text-xs').textContent.replace('ID: ', '').trim();
-                    const name = cells[1].querySelector('p.font-bold').textContent;
-                    const email = cells[3].querySelector('span').textContent.trim();
-                    const status = cells[4].textContent.trim();
-                    const date = cells[5].querySelector('span.text-sm').textContent;
-                    
-                    csv += `"${id}","${name}","${email}","${status}","${date}"\\n`;
-                }
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `teachers_export_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            
-            showToast('CSV exported successfully');
         }
 
         function showToast(message, type = 'success') {

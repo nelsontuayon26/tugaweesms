@@ -73,16 +73,28 @@ class ProfileController extends Controller
             'last_name' => $request->last_name,
             'suffix' => $request->suffix,
             'email' => $request->email,
-            'birthday' => $request->date_of_birth,
         ]);
 
-        // ✅ UPDATE TEACHERS TABLE
+        // ✅ UPDATE TEACHERS TABLE — all fields from the form with correct column names
         $teacher->update($request->only([
             'first_name', 'middle_name', 'last_name', 'suffix',
-            'gender', 'contact_number', 'address', 'birthdate',
-            'prc_id', 'prc_validity', 'position', 'department',
-            'employment_status', 'date_hired', 'tin', 'philhealth',
-            'sss', 'pagibig'
+            'deped_id', 'gender', 'date_of_birth', 'place_of_birth',
+            'civil_status', 'nationality', 'religion', 'blood_type',
+            'mobile_number', 'telephone_number',
+            'street_address', 'barangay', 'city_municipality', 'province', 'zip_code', 'region',
+            'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_number', 'emergency_contact_address',
+            'employment_status', 'date_hired', 'date_regularized', 'current_status',
+            'teaching_level', 'position', 'designation', 'department',
+            'is_class_adviser', 'advisory_class',
+            'salary_grade', 'step_increment', 'basic_salary', 'bank_name', 'bank_account_number',
+            'highest_education', 'degree_program', 'major', 'minor',
+            'school_graduated', 'year_graduated', 'honors_received',
+            'prc_license_number', 'prc_license_validity', 'let_passer', 'board_rating',
+            'tesda_nc', 'tesda_sector', 'years_of_experience', 'previous_school', 'previous_position',
+            'gsis_id', 'pagibig_id', 'philhealth_id', 'sss_id', 'tin_id', 'pagibig_rtn',
+            'spouse_name', 'spouse_occupation', 'spouse_contact', 'number_of_children',
+            'father_name', 'father_occupation', 'mother_name', 'mother_occupation',
+            'remarks'
         ]));
 
         return redirect()->route('teacher.profile')->with('success', 'Profile updated!');

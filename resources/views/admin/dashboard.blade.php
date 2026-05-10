@@ -326,10 +326,24 @@
                     </div>
                     
                     <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                        <div class="hidden md:flex items-center bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                        <div class="hidden md:flex items-center bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all relative" id="admin-search-wrapper">
                             <i class="fas fa-search text-slate-400 mr-2 text-sm"></i>
-                            <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none text-sm w-32 lg:w-56 placeholder:text-slate-400">
+                            <input type="text" id="admin-search-input" placeholder="Search students, teachers, sections..." autocomplete="off" class="bg-transparent border-none outline-none text-sm w-32 lg:w-56 placeholder:text-slate-400">
                             <kbd class="hidden lg:inline-block px-2 py-0.5 text-[10px] font-semibold text-slate-400 bg-slate-100 rounded border border-slate-200">⌘K</kbd>
+
+                            <!-- Search Results Dropdown -->
+                            <div id="admin-search-dropdown" class="hidden fixed bg-white rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border border-slate-200 z-[9999] overflow-hidden" style="min-width: 320px;">
+                                <div class="flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50">
+                                    <h3 class="font-semibold text-xs text-slate-500 uppercase tracking-wider">Results</h3>
+                                    <span id="admin-search-query" class="text-xs text-slate-400"></span>
+                                </div>
+                                <div id="admin-search-list" class="max-h-[60vh] overflow-y-auto" style="scrollbar-width: thin;">
+                                    <div class="p-6 text-center text-sm text-slate-500">
+                                        <i class="fas fa-search text-slate-300 text-2xl mb-2 block"></i>
+                                        Type at least 2 characters to search...
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="relative" id="dashboard-notif-wrapper">
@@ -1001,6 +1015,207 @@
 
         fetchUnreadCount();
         setInterval(fetchUnreadCount, 30000);
+    })();
+    </script>
+
+    <!-- Global Search Script -->
+    <script>
+    (function(){
+        const wrapper = document.getElementById('admin-search-wrapper');
+        const input = document.getElementById('admin-search-input');
+        const dropdown = document.getElementById('admin-search-dropdown');
+        const list = document.getElementById('admin-search-list');
+        const queryLabel = document.getElementById('admin-search-query');
+        let searchTimeout = null;
+        let selectedIndex = -1;
+        let currentResults = [];
+
+        const typeConfig = {
+            student: { label: 'Students', icon: 'fa-user-graduate', color: 'text-blue-600', bg: 'bg-blue-50' },
+            teacher: { label: 'Teachers', icon: 'fa-chalkboard-teacher', color: 'text-purple-600', bg: 'bg-purple-50' },
+            section: { label: 'Sections', icon: 'fa-th-large', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            announcement: { label: 'Announcements', icon: 'fa-bullhorn', color: 'text-amber-600', bg: 'bg-amber-50' },
+        };
+
+        function positionDropdown() {
+            const rect = wrapper.getBoundingClientRect();
+            const minWidth = 420;
+            const maxWidth = Math.min(520, window.innerWidth - 32);
+            let width = Math.max(rect.width, minWidth);
+            width = Math.min(width, maxWidth);
+            let left = rect.left;
+
+            // If it would overflow the right edge, align to the right of the wrapper
+            if (left + width > window.innerWidth - 16) {
+                left = rect.right - width;
+            }
+            // Ensure it doesn't go off the left edge
+            if (left < 16) {
+                left = 16;
+            }
+
+            dropdown.style.top = (rect.bottom + 6) + 'px';
+            dropdown.style.left = left + 'px';
+            dropdown.style.width = width + 'px';
+            dropdown.style.maxWidth = maxWidth + 'px';
+        }
+
+        function showDropdown() {
+            dropdown.classList.remove('hidden');
+            positionDropdown();
+        }
+
+        function hideDropdown() {
+            dropdown.classList.add('hidden');
+            selectedIndex = -1;
+        }
+
+        function renderLoading() {
+            list.innerHTML = '<div class="p-4"><div class="flex items-center gap-3 py-2 animate-pulse"><div class="w-8 h-8 rounded-lg bg-slate-200"></div><div class="flex-1 space-y-2"><div class="h-3 w-3/4 bg-slate-200 rounded"></div><div class="h-2 w-1/2 bg-slate-200 rounded"></div></div></div></div>';
+        }
+
+        function renderEmpty(query) {
+            list.innerHTML = `<div class="p-6 text-center text-sm text-slate-500"><i class="fas fa-search text-slate-300 text-2xl mb-2 block"></i>No results found for "<span class="font-semibold text-slate-700">${escapeHtml(query)}</span>"</div>`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderResults(data) {
+            currentResults = [];
+            const categories = ['students', 'teachers', 'sections', 'announcements'];
+            let hasAny = false;
+            let html = '';
+
+            categories.forEach(cat => {
+                const items = data[cat] || [];
+                if (items.length === 0) return;
+                hasAny = true;
+                const cfg = typeConfig[items[0].type];
+
+                html += `<div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100">${cfg.label}</div>`;
+
+                items.forEach((item, idx) => {
+                    const globalIdx = currentResults.length;
+                    currentResults.push(item);
+                    html += `
+                        <a href="${item.url}" data-index="${globalIdx}" class="global-search-result flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 border-b border-slate-50 transition-colors cursor-pointer ${globalIdx === 0 ? 'bg-slate-50/50' : ''}">
+                            <div class="w-9 h-9 rounded-lg ${cfg.bg} ${cfg.color} flex items-center justify-center flex-shrink-0">
+                                <i class="fas ${item.icon} text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 overflow-hidden">
+                                <p class="text-sm font-semibold text-slate-800 break-words leading-tight">${escapeHtml(item.title)}</p>
+                                <p class="text-xs text-slate-500 break-words mt-0.5">${escapeHtml(item.subtitle)}${item.meta ? '<span class="text-slate-400"> · ' + escapeHtml(item.meta) + '</span>' : ''}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                        </a>
+                    `;
+                });
+            });
+
+            if (!hasAny) {
+                renderEmpty(data.query || '');
+                return;
+            }
+
+            list.innerHTML = html;
+            selectedIndex = 0;
+            highlightSelected();
+            positionDropdown();
+        }
+
+        function highlightSelected() {
+            const items = list.querySelectorAll('.global-search-result');
+            items.forEach((el, i) => {
+                if (i === selectedIndex) {
+                    el.classList.add('bg-slate-100');
+                } else {
+                    el.classList.remove('bg-slate-100');
+                }
+            });
+        }
+
+        function performSearch(query) {
+            if (!query || query.length < 2) {
+                list.innerHTML = '<div class="p-6 text-center text-sm text-slate-500"><i class="fas fa-search text-slate-300 text-2xl mb-2 block"></i>Type at least 2 characters to search...</div>';
+                queryLabel.textContent = '';
+                return;
+            }
+
+            renderLoading();
+            queryLabel.textContent = 'Searching...';
+
+            fetch(`{{ route('admin.search') }}?q=` + encodeURIComponent(query))
+                .then(r => r.json())
+                .then(data => {
+                    queryLabel.textContent = `"${escapeHtml(query)}"`;
+                    renderResults(data);
+                })
+                .catch(() => {
+                    list.innerHTML = '<div class="p-4 text-center text-sm text-red-500">Search failed. Please try again.</div>';
+                    queryLabel.textContent = '';
+                });
+        }
+
+        input.addEventListener('focus', function() {
+            showDropdown();
+            if (input.value.trim().length >= 2) {
+                performSearch(input.value.trim());
+            }
+        });
+
+        input.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => performSearch(query), 250);
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (selectedIndex < currentResults.length - 1) {
+                    selectedIndex++;
+                    highlightSelected();
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (selectedIndex > 0) {
+                    selectedIndex--;
+                    highlightSelected();
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && currentResults[selectedIndex]) {
+                    window.location.href = currentResults[selectedIndex].url;
+                }
+            } else if (e.key === 'Escape') {
+                hideDropdown();
+                input.blur();
+            }
+        });
+
+        // Keyboard shortcut: Cmd/Ctrl + K
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                input.focus();
+                showDropdown();
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        // Hide dropdown on scroll or resize since it's fixed positioned
+        window.addEventListener('scroll', hideDropdown, { passive: true });
+        window.addEventListener('resize', hideDropdown, { passive: true });
     })();
     </script>
 </body>

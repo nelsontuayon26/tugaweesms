@@ -53,7 +53,7 @@
   async function registerServiceWorker() {
     try {
       // Use a fixed version query. Bump this when you change sw.js.
-      const swUrl = PWA_CONFIG.swPath + '?v=8';
+      const swUrl = PWA_CONFIG.swPath + '?v=9';
       const registration = await navigator.serviceWorker.register(swUrl, {
         scope: '/',
         updateViaCache: 'imports'

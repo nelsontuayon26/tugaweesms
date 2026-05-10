@@ -566,6 +566,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:System Admin']
 
     // Admin Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/search', [AdminDashboardController::class, 'search'])->name('search');
 
     // Admin Profile
     Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
@@ -593,6 +594,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:System Admin']
     Route::get('/students/{student}/edit', [StudentController::class, 'edit'])->name('students.edit');
     Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::post('/students/bulk-delete', [StudentController::class, 'bulkDestroy'])->name('students.bulk-destroy');
+    Route::post('/students/export-csv', [StudentController::class, 'exportCsv'])->name('students.export-csv');
     Route::get('/students/{student}/id-card', [StudentController::class, 'idCard'])->name('students.id-card');
 
     // Teachers Management
@@ -603,6 +606,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:System Admin']
     Route::get('/teachers/{teacher}/edit', [TeacherController::class, 'edit'])->name('teachers.edit');
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])->name('teachers.update');
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])->name('teachers.destroy');
+    Route::delete('/teachers/bulk-delete', [TeacherController::class, 'bulkDestroy'])->name('teachers.bulk-destroy');
+    Route::post('/teachers/export-csv', [TeacherController::class, 'exportCsv'])->name('teachers.export-csv');
+    Route::post('/teachers/print', [TeacherController::class, 'printProfiles'])->name('teachers.print');
 
     // Sections Management
     Route::get('/sections', [SectionController::class, 'index'])->name('sections.index');

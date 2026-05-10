@@ -334,6 +334,30 @@
                         <i class="fas fa-graduation-cap text-lg"></i>
                         <span>Education</span>
                     </button>
+                    <button onclick="switchTab('emergency')" id="tab-emergency" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-ambulance text-lg"></i>
+                        <span>Emergency</span>
+                    </button>
+                    <button onclick="switchTab('salary')" id="tab-salary" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-money-check-alt text-lg"></i>
+                        <span>Salary</span>
+                    </button>
+                    <button onclick="switchTab('credentials')" id="tab-credentials" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-certificate text-lg"></i>
+                        <span>Credentials</span>
+                    </button>
+                    <button onclick="switchTab('government')" id="tab-government" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-id-card-alt text-lg"></i>
+                        <span>Gov't IDs</span>
+                    </button>
+                    <button onclick="switchTab('family')" id="tab-family" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-users text-lg"></i>
+                        <span>Family</span>
+                    </button>
+                    <button onclick="switchTab('others')" id="tab-others" class="tab-liquid px-4 lg:px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all duration-300 whitespace-nowrap flex items-center gap-2">
+                        <i class="fas fa-ellipsis-h text-lg"></i>
+                        <span>Others</span>
+                    </button>
                 </div>
 
                 {{-- Account Information Tab --}}
@@ -637,6 +661,222 @@ if ($dob) {
                                     <i class="fas fa-star text-amber-400"></i>
                                     <span>{{ $teacher->years_of_experience ?? 'N/A' }} years</span>
                                 </p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Honors Received</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->honors_received ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Emergency Contact Tab --}}
+                <div id="content-emergency" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-ambulance"></i></div>
+                                Emergency Contact
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact Name</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->emergency_contact_name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Relationship</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->emergency_contact_relationship ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact Number</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->emergency_contact_number ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm sm:col-span-2 lg:col-span-3">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Address</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->emergency_contact_address ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Salary & Bank Tab --}}
+                <div id="content-salary" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-money-check-alt"></i></div>
+                                Salary & Bank Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Salary Grade</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->salary_grade ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Step Increment</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->step_increment ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Basic Salary</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->basic_salary ? '₱'.number_format($teacher->basic_salary, 2) : 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bank Name</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->bank_name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bank Account Number</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->bank_account_number ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Credentials Tab --}}
+                <div id="content-credentials" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-certificate"></i></div>
+                                Professional Credentials
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">LET Passer</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->let_passer ? 'Yes' : 'No' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Board Rating</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->board_rating ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">TESDA NC</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->tesda_nc ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">TESDA Sector</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->tesda_sector ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Previous School</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->previous_school ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Previous Position</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->previous_position ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Government IDs Tab --}}
+                <div id="content-government" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-id-card-alt"></i></div>
+                                Government IDs
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">GSIS ID</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->gsis_id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pag-IBIG ID</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->pagibig_id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">PhilHealth ID</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->philhealth_id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">SSS ID</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->sss_id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">TIN ID</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->tin_id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Pag-IBIG RTN</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->pagibig_rtn ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Family Tab --}}
+                <div id="content-family" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-users"></i></div>
+                                Family Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Spouse Name</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->spouse_name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Spouse Occupation</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->spouse_occupation ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Spouse Contact</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->spouse_contact ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Number of Children</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->number_of_children ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Father's Name</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->father_name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Father's Occupation</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->father_occupation ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Mother's Name</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->mother_name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Mother's Occupation</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->mother_occupation ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Others Tab --}}
+                <div id="content-others" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-5 lg:p-8 shadow-lg border border-white/60">
+                        <div class="section-header rounded-2xl p-5 mb-8 border border-white/60 shadow-sm">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-white shadow-lg"><i class="fas fa-ellipsis-h"></i></div>
+                                Other Information
+                            </h2>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Class Adviser</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->is_class_adviser ? 'Yes' : 'No' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Advisory Class</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->advisory_class ?? 'N/A' }}</p>
+                            </div>
+                            <div class="info-card bg-white rounded-2xl p-5 shadow-sm sm:col-span-2 lg:col-span-3">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Remarks</p>
+                                <p class="text-base font-bold text-slate-800">{{ $teacher->remarks ?? 'N/A' }}</p>
                             </div>
                         </div>
                     </div>

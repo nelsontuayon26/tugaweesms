@@ -465,10 +465,10 @@
                             <i class="fas fa-bars text-slate-600"></i>
                         </button>
                         <div>
-                            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Create Student</h2>
+                            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Create Pupil</h2>
                             <p class="text-sm text-slate-500 font-medium flex items-center gap-2 mt-0.5">
                                 <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                Add new student enrollment
+                                Add new pupil enrollment
                             </p>
                         </div>
                     </div>
@@ -617,7 +617,7 @@
                 <option value="continuing" {{ old('type') == 'continuing' ? 'selected' : '' }}>Continuing Student</option>
                 <option value="transferee" {{ old('type') == 'transferee' ? 'selected' : '' }}>Transferee</option>
             </select>
-            <p class="input-hint">Select based on student's enrollment status</p>
+            <p class="input-hint">Select based on pupil's enrollment status</p>
             @error('type')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
@@ -767,7 +767,7 @@ $sectionsJson = $sections->map(function($s) {
             }
             // Documents for new students
             if (documentRequirementsText) {
-                documentRequirementsText.innerHTML = '<i class="fas fa-info-circle mr-2"></i>New Students: Birth Certificate and Report Card are required. Good Moral is optional.';
+                documentRequirementsText.innerHTML = '<i class="fas fa-info-circle mr-2"></i>New Pupils: Birth Certificate and Report Card are required. Good Moral is optional.';
             }
             if (birthCertLabel) birthCertLabel.childNodes[0].textContent = 'Birth Certificate ';
             setDocRequired(birthCertInput, birthCertStatus, true);
@@ -796,7 +796,7 @@ $sectionsJson = $sections->map(function($s) {
             }
             // Documents for continuing students
             if (documentRequirementsText) {
-                documentRequirementsText.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Continuing Students: All documents are optional.';
+                documentRequirementsText.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Continuing Pupils: All documents are optional.';
             }
             if (birthCertLabel) birthCertLabel.childNodes[0].textContent = 'Birth Certificate ';
             setDocRequired(birthCertInput, birthCertStatus, false);
@@ -1327,7 +1327,7 @@ document.getElementById('removePhoto').addEventListener('click', function() {
                 <option value="{{ $code }}" {{ old('remarks') == $code ? 'selected' : '' }}>{{ $code }} - {{ $description }}</option>
             @endforeach
         </select>
-        <p class="input-hint">Select a remark code for this student's status</p>
+        <p class="input-hint">Select a remark code for this pupil's status</p>
     </div>
 </div>
 
