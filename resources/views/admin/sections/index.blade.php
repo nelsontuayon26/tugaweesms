@@ -622,13 +622,7 @@
                                         <a href="{{ route('admin.sections.edit', $section) }}" class="action-btn edit-btn text-slate-400 hover:text-amber-600" title="Edit Section">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('admin.sections.destroy', $section) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this section?');" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="action-btn delete-btn text-slate-400 hover:text-red-600" title="Delete Section">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
+                                        
                                     </div>
                                 </td>
                             </tr>

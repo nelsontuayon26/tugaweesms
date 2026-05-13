@@ -533,7 +533,7 @@ img {
                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 pt-8 border-t border-slate-200/60">
                         <div>
                             <p class="text-3xl font-bold text-teal-600">{{ $studentCount }}+</p>
-                            <p class="text-sm text-slate-500 font-medium">Students</p>
+                            <p class="text-sm text-slate-500 font-medium">Pupils</p>
                         </div>
                         <div>
                             <p class="text-3xl font-bold text-orange-500">{{ $teachers->count() }}+</p>
@@ -1171,7 +1171,7 @@ function imageSlider() {
                         <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-teal-500 rounded-full border-2 border-white"></div>
                     </div>
                     <div>
-                        <h2 class="font-bold text-slate-900 text-lg">Tugawe ES Portal</h2>
+                        <h2 class="font-bold text-slate-900 text-lg">Tugawe Elementary School</h2>
                         <p class="text-xs text-slate-500">Pupil Management System</p>
                     </div>
                 </div>
@@ -1182,36 +1182,31 @@ function imageSlider() {
                 </button>
             </div>
 
-            <!-- Auth Mode Indicator -->
-            <div class="px-6 pt-6 pb-2">
-                <div class="flex items-center gap-3 mb-2">
-                    <div id="authModeIcon" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/25 transition-all duration-300">
-                        <svg id="signinIcon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                        </svg>
-                        <svg id="signupIcon" class="w-6 h-6 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 id="authTitle" class="text-xl font-bold text-slate-900 transition-all duration-300">Staff Portal</h3>
-                        <p id="authSubtitle" class="text-sm text-slate-500 transition-all duration-300">Sign in for Admins and Teachers only.</p>
-                    </div>
-                </div>
-            </div>
+<!-- Auth Mode Indicator -->
+<div class="px-6 pt-6 pb-2">
+    <div class="flex items-center gap-3 mb-2">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/25">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="text-xl font-bold text-slate-900">School Portal</h3>
+            <p class="text-sm text-slate-500">Sign in as an Admin, Teachers, Principal or Pupils.</p>
+        </div>
+    </div>
+</div>
 
-            <!-- Toggle Switch -->
-            <div class="px-6 py-4">
-                <div class="relative bg-slate-100 rounded-2xl p-1.5 flex items-center">
-                    <div id="toggleSlider" class="absolute left-1.5 w-[calc(50%-6px)] h-[calc(100%-12px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out"></div>
-                    <button onclick="switchAuthMode('login')" id="loginTab" class="relative z-10 flex-1 py-2.5 text-sm font-semibold text-teal-700 transition-colors duration-300 text-center">
-                        Sign In
-                    </button>
-                    <button onclick="switchAuthMode('register')" id="registerTab" class="relative z-10 flex-1 py-2.5 text-sm font-semibold text-slate-500 transition-colors duration-300 text-center">
-                        Pupil Sign Up
-                    </button>
-                </div>
-            </div>
+         
+<!-- Single Mode Indicator -->
+<div class="px-6 py-4">
+    <div class="bg-teal-50 rounded-2xl p-3 flex items-center justify-center gap-2 border border-teal-100">
+        <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+        </svg>
+        <span class="text-sm font-semibold text-teal-700">Sign In</span>
+    </div>
+</div>
 
             <!-- Forms Container -->
             <div class="flex-1 p-6 relative overflow-hidden">
@@ -1370,8 +1365,8 @@ function imageSlider() {
                     </div>
                 </div>
 
-                <!-- Student Registration Form -->
-                <div id="registerForm" class="form-slide exit-left space-y-5">
+               <!-- Student Registration Form - REMOVED -->
+                   <div id="registerForm" class="hidden">
                     <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-xl p-4 mb-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
@@ -1432,7 +1427,7 @@ function imageSlider() {
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Student Type <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Pupil Type <span class="text-red-500">*</span></label>
                     <select name="type" id="studentType" required onchange="toggleStudentTypeFields()"
                             class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all bg-white">
                         <option value="new" @selected(old('type') == 'new' || old('type') === null)>New Pupil</option>
@@ -2050,56 +2045,17 @@ function imageSlider() {
                                 <span class="w-6 h-6 rounded-full bg-teal-200 text-teal-800 flex items-center justify-center text-xs font-bold flex-shrink-0">5</span>
                                 <span>Visit the school office to complete the enrollment and submit original documents if required.</span>
                             </li>
-                        </ol>
+                                              </ol>
+                        <div class="mt-4 pt-4 border-t border-teal-200/60">
+                            <button type="button" onclick="showTermsContent()" class="text-sm font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-2 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Read Terms & Conditions
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Terms & Conditions -->
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Terms & Conditions
-                        </h3>
-                        <ul class="space-y-3 text-sm text-slate-700">
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                All information provided must be true and accurate. False information may result in disqualification.
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Uploaded documents must be clear, legible, and in the accepted formats (PDF, JPG, PNG).
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Account approval is subject to the school administrator's verification and availability of slots.
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Parents or guardians are responsible for the pupil's attendance, behavior, and compliance with school policies.
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Personal data collected will be used solely for enrollment and school record purposes in accordance with DepEd guidelines.
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                The school reserves the right to accept or decline enrollment applications based on policy and capacity.
-                            </li>
-                        </ul>
-                    </div>
 
                     <!-- Select Student Type -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-6">
@@ -2107,7 +2063,7 @@ function imageSlider() {
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
-                            Select Your Student Type
+                            Select Your Pupil Type
                         </h3>
                         <p class="text-sm text-slate-500 mb-4">Choose the option that applies to you. This will determine where you need to go next:</p>
                         <div class="space-y-3">
@@ -2150,16 +2106,87 @@ function imageSlider() {
                         </div>
                     </div>
 
-                    <!-- Agreement Checkbox -->
+                    <!-- Agreement Note -->
                     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                        <label class="flex items-start gap-3 cursor-pointer">
-                            <input type="checkbox" id="agreeTerms" class="custom-checkbox mt-0.5" onchange="toggleProceedBtn()">
-                            <span class="text-sm text-amber-900">
-                                I have read and understood the <strong>enrollment process</strong>, selected my <strong>student type</strong>, and agree to the <strong>terms and conditions</strong> stated above. I confirm that all information I will provide is accurate and true.
-                            </span>
-                        </label>
+                        <p class="text-sm text-amber-900">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Please click <strong>"Read Terms & Conditions"</strong> above to review and agree. Then select your <strong>pupil type</strong> below to proceed.
+                        </p>
                     </div>
                 </div>
+
+
+                <!-- Terms Only Content (hidden by default) -->
+                <div id="termsOnlyContent" class="hidden flex-1 overflow-y-auto p-6 space-y-6">
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Terms & Conditions
+                            </h3>
+                          
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                All information provided must be true and accurate. False information may result in disqualification.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Uploaded documents must be clear, legible, and in the accepted formats (PDF, JPG, PNG).
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Account approval is subject to the school administrator's verification and availability of slots.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Parents or guardians are responsible for the pupil's attendance, behavior, and compliance with school policies.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Personal data collected will be used solely for enrollment and school record purposes in accordance with DepEd guidelines.
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <svg class="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                The school reserves the right to accept or decline enrollment applications based on policy and capacity.
+                            </li>
+                        </ul>
+                        <!-- Checkbox inside Terms Only view -->
+                        <div class="mt-5 pt-4 border-t border-slate-200">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" id="agreeTermsOnly" class="custom-checkbox mt-0.5" onchange="syncTermsCheckbox()">
+                                <span class="text-sm text-slate-700">
+                                    I have read and agree to the <strong>Terms & Conditions</strong> stated above. I confirm that all information I will provide is accurate and true.
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="button" onclick="showGuidelinesContent()" class="text-sm font-semibold text-teal-600 hover:text-teal-800 flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-teal-50 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Back to Enrollment Guidelines
+                        </button>
+                    </div>
+                </div>
+
+
                 <div class="p-6 border-t border-slate-100 bg-white sticky bottom-0">
                     <button onclick="handleEnrollProceed()" id="proceedEnrollBtn" class="w-full btn-primary text-white py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 shadow-xl shadow-teal-500/30 opacity-50 pointer-events-none transition-all duration-300">
                         <span id="proceedBtnText">Select student type to proceed</span>
@@ -2344,7 +2371,7 @@ function imageSlider() {
                         </svg>
                     </button>
                 </div>
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                                <div class="flex-1 overflow-y-auto p-6 space-y-6" id="guidelinesContent">
                     <div class="bg-teal-50 border border-teal-100 rounded-2xl p-6">
                         <h3 class="text-lg font-bold text-teal-800 mb-3">Data We Collect</h3>
                         <p class="text-sm text-teal-900 leading-relaxed">
@@ -2640,56 +2667,17 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.style.overflow = '';
         }
 
-        function switchAuthMode(mode) {
-            const slider = document.getElementById('toggleSlider');
-            const loginTab = document.getElementById('loginTab');
-            const registerTab = document.getElementById('registerTab');
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            
-            // Update toggle slider
-            if (mode === 'register') {
-                slider.style.transform = 'translateX(100%)';
-                loginTab.classList.remove('text-teal-700');
-                loginTab.classList.add('text-slate-500');
-                registerTab.classList.remove('text-slate-500');
-                registerTab.classList.add('text-orange-600');
-                
-                // Update header
-                document.getElementById('authTitle').textContent = 'Student Registration';
-                document.getElementById('authSubtitle').textContent = 'Create your student account';
-                document.getElementById('signinIcon').classList.add('hidden');
-                document.getElementById('signupIcon').classList.remove('hidden');
-                document.getElementById('authModeIcon').classList.remove('from-teal-500', 'to-teal-600');
-                document.getElementById('authModeIcon').classList.add('from-orange-500', 'to-orange-600');
-                
-                // Switch forms
-                loginForm.classList.remove('active');
-                loginForm.classList.add('exit-left');
-                registerForm.classList.add('active');
-                registerForm.classList.remove('exit-left');
-            } else {
-                slider.style.transform = 'translateX(0)';
-                loginTab.classList.add('text-teal-700');
-                loginTab.classList.remove('text-slate-500');
-                registerTab.classList.add('text-slate-500');
-                registerTab.classList.remove('text-orange-600');
-                
-                // Update header
-                document.getElementById('authTitle').textContent = 'Welcome Back';
-                document.getElementById('authSubtitle').textContent = 'Sign in to access your account';
-                document.getElementById('signinIcon').classList.remove('hidden');
-                document.getElementById('signupIcon').classList.add('hidden');
-                document.getElementById('authModeIcon').classList.add('from-teal-500', 'to-teal-600');
-                document.getElementById('authModeIcon').classList.remove('from-orange-500', 'to-orange-600');
-                
-                // Switch forms
-                registerForm.classList.remove('active');
-                registerForm.classList.add('exit-left');
-                loginForm.classList.add('active');
-                loginForm.classList.remove('exit-left');
-            }
-        }
+function switchAuthMode(mode) {
+    // Only login mode is supported now - registration removed
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    // Always show login form
+    registerForm.classList.remove('active');
+    registerForm.classList.add('hidden');
+    loginForm.classList.add('active');
+    loginForm.classList.remove('exit-left');
+}
 
         // Password Toggle
         function togglePassword(inputId) {
@@ -2698,20 +2686,18 @@ document.addEventListener('DOMContentLoaded', function () {
             input.type = type;
         }
 
-        function openAuthPanel(mode = 'login') {
-            const panel = document.getElementById('authSidePanel');
-            const overlay = document.getElementById('sidePanelOverlay');
-            
-            panel.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            if (mode === 'register') {
-                switchAuthMode('register');
-            } else {
-                switchAuthMode('login');
-            }
-        }
+
+function openAuthPanel(mode = 'login') {
+    const panel = document.getElementById('authSidePanel');
+    const overlay = document.getElementById('sidePanelOverlay');
+    
+    panel.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Always force login mode, registration is disabled
+    switchAuthMode('login');
+}
 
         // Form Submit Handler
         function handleAuthSubmit(event, type) {
@@ -2745,8 +2731,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Send OTP for registration
         // Enrollment Terms Toggle
+        function showTermsContent() {
+            document.getElementById('guidelinesContent').classList.add('hidden');
+            document.getElementById('termsOnlyContent').classList.remove('hidden');
+            document.getElementById('termsOnlyContent').scrollTop = 0;
+        }
+
+        function showGuidelinesContent() {
+            document.getElementById('termsOnlyContent').classList.add('hidden');
+            document.getElementById('guidelinesContent').classList.remove('hidden');
+            document.getElementById('guidelinesContent').scrollTop = 0;
+            // Update status badge
+            updateTermsStatusBadge();
+        }
+
+        function syncTermsCheckbox() {
+            toggleProceedBtn();
+            updateTermsStatusBadge();
+        }
+
+        function updateTermsStatusBadge() {
+            const badge = document.getElementById('termsStatusBadge');
+            const checkbox = document.getElementById('agreeTermsOnly');
+            if (badge && checkbox) {
+                if (checkbox.checked) {
+                    badge.textContent = 'Agreed';
+                    badge.classList.remove('bg-slate-200', 'text-slate-500');
+                    badge.classList.add('bg-teal-100', 'text-teal-700');
+                } else {
+                    badge.textContent = 'Not reviewed';
+                    badge.classList.remove('bg-teal-100', 'text-teal-700');
+                    badge.classList.add('bg-slate-200', 'text-slate-500');
+                }
+            }
+        }
+
         function toggleProceedBtn() {
-            const checkbox = document.getElementById('agreeTerms');
+            const checkbox = document.getElementById('agreeTermsOnly');
             const btn = document.getElementById('proceedEnrollBtn');
             const btnText = document.getElementById('proceedBtnText');
             const btnIcon = document.getElementById('proceedBtnIcon');
@@ -2768,18 +2789,19 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        function handleEnrollProceed() {
-            const selectedType = document.querySelector('input[name="studentTypeSelect"]:checked');
-            if (!selectedType) return;
-            
-            closeModal('enrollTermsModal');
-            
-            if (selectedType.value === 'continuing') {
-                openAuthPanel('login');
-            } else {
-                window.location.href = "{{ route('register') }}";
-            }
-        }
+function handleEnrollProceed() {
+    const selectedType = document.querySelector('input[name="studentTypeSelect"]:checked');
+    if (!selectedType) return;
+    
+    closeModal('enrollTermsModal');
+    
+    if (selectedType.value === 'continuing') {
+        openAuthPanel('login');
+    } else {
+        // New or Transferee → redirect to dedicated registration page
+        window.location.href = "{{ route('register.page') }}";
+    }
+}
 
         // Modal Functions
         function openModal(id) {
@@ -2983,11 +3005,11 @@ foreach($errors->keys() as $key) {
 }
 @endphp
 
-@if($hasRegistrationErrors || session('panel_mode') === 'register')
+@if($hasRegistrationErrors)
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     playErrorSound();
-    openAuthPanel('register');
+    openAuthPanel('login');
 });
 </script>
 @endif

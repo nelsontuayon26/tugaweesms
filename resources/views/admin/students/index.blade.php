@@ -592,9 +592,7 @@
                 <a href="{{ route('admin.students.edit', $student) }}" class="action-btn text-amber-600 hover:bg-amber-50" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>
-                <button onclick="deleteStudent({{ $student->id }})" class="action-btn text-red-600 hover:bg-red-50" title="Delete">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+               
 
                 <!-- ID Card Modal (teleported to body) -->
                 <template x-teleport="body">

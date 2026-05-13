@@ -55,12 +55,41 @@ class Student extends Model
         'registration_status',
         'documents_verified_at',
         'documents_verified_by',
+
+        // DepEd enrollment fields
+        'psa_birth_cert_no',
+        'has_lrn',
+        'is_ip',
+        'ip_specification',
+        'is_4ps_beneficiary',
+        'household_id_4ps',
+        'is_returning_balik_aral',
+
+        // Permanent address
+        'same_as_current_address',
+        'permanent_street_address',
+        'permanent_street_name',
+        'permanent_barangay',
+        'permanent_city',
+        'permanent_province',
+        'permanent_zip_code',
+
+        // Returning/Transferee fields
+        'last_grade_level_completed',
+        'last_school_year_completed',
+        'previous_school',
+        'previous_school_id',
     ];
     
     protected $casts = [
         'birthdate' => 'date',
         'status' => 'string',
         'documents_verified_at' => 'datetime',
+        'has_lrn' => 'boolean',
+        'is_ip' => 'boolean',
+        'is_4ps_beneficiary' => 'boolean',
+        'is_returning_balik_aral' => 'boolean',
+        'same_as_current_address' => 'boolean',
     ];
 
         // ✅ Add your remarks legend here

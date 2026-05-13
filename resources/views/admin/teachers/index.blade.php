@@ -770,9 +770,7 @@
                                             <a href="{{ route('admin.teachers.edit', $teacher) }}" class="action-btn text-amber-600 hover:bg-amber-50" title="Edit Teacher" style="transition-delay: 50ms;">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button onclick="deleteTeacher({{ $teacher->id }})" class="action-btn text-red-600 hover:bg-red-50" title="Delete" style="transition-delay: 100ms;">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                          
                                         </div>
                                     </td>
                                 </tr>

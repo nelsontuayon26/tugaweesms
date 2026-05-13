@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Pupil | Tugawe Elementary</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -398,14 +398,14 @@
          style="display: none;"></div>
 
     <!-- Floating Back Button -->
-    <a href="{{ route('admin.students.index') }}" class="floating-back-btn" title="Back to List">
+    <a href="<?php echo e(route('admin.students.index')); ?>" class="floating-back-btn" title="Back to List">
         <i class="fas fa-arrow-left"></i>
     </a>
 
     <div class="dashboard-layout">
         <!-- Fixed Sidebar -->
         <div class="sidebar-container">
-            @include('admin.includes.sidebar')
+            <?php echo $__env->make('admin.includes.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         </div>
 
         <!-- Main Content Wrapper -->
@@ -431,12 +431,12 @@
             <!-- Scrollable Content -->
             <main class="main-content">
 
-                @if(session('success'))
+                <?php if(session('success')): ?>
                     <div class="alert-success animate-fade-in-up" id="successAlert">
                         <div class="flex items-center gap-3 flex-1">
                             <i class="fas fa-check-circle text-2xl text-green-600"></i>
                             <div>
-                                <div class="font-bold text-lg">{{ session('success') }}</div>
+                                <div class="font-bold text-lg"><?php echo e(session('success')); ?></div>
                                 <div class="text-sm text-green-700">Redirecting in <span id="countdown">5</span> seconds...</div>
                             </div>
                         </div>
@@ -452,29 +452,29 @@
                             timerBadgeEl.textContent = seconds + 's';
                             if (seconds <= 0) {
                                 clearInterval(timer);
-                                window.location.href = "{{ route('admin.students.index') }}";
+                                window.location.href = "<?php echo e(route('admin.students.index')); ?>";
                             }
                         }, 1000);
                     </script>
-                @endif
+                <?php endif; ?>
 
-                <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data" class="animate-fade-in-up" id="studentForm">
-                    @csrf
+                <form action="<?php echo e(route('admin.students.store')); ?>" method="POST" enctype="multipart/form-data" class="animate-fade-in-up" id="studentForm">
+                    <?php echo csrf_field(); ?>
 
-                    @if($errors->any() || session('error'))
+                    <?php if($errors->any() || session('error')): ?>
                         <div class="alert-error animate-fade-in-up" id="errorAlert">
-                            <strong>{{ $errors->any() ? 'VALIDATION ERRORS:' : 'ERROR:' }}</strong>
-                            @if($errors->any())
+                            <strong><?php echo e($errors->any() ? 'VALIDATION ERRORS:' : 'ERROR:'); ?></strong>
+                            <?php if($errors->any()): ?>
                                 <ul class="mt-2 ml-5 text-sm">
-                                    @foreach($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
+                                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <li><?php echo e($error); ?></li>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
-                            @elseif(session('error'))
-                                <span>{{ session('error') }}</span>
-                            @endif
+                            <?php elseif(session('error')): ?>
+                                <span><?php echo e(session('error')); ?></span>
+                            <?php endif; ?>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
                     <!-- ========== SECTION 1: ACADEMIC INFORMATION ========== -->
                     <div>
@@ -483,24 +483,24 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label class="form-label">School Year <span class="required">*</span></label>
-                                    <input type="text" value="{{ $activeSchoolYear?->name ?? date('Y') . ' - ' . (date('Y') + 1) }}" readonly
+                                    <input type="text" value="<?php echo e($activeSchoolYear?->name ?? date('Y') . ' - ' . (date('Y') + 1)); ?>" readonly
                                            class="form-input bg-slate-100 text-slate-600 font-semibold">
                                 </div>
                                 <div>
                                     <label class="form-label">Grade Level to Enroll <span class="required">*</span></label>
                                     <select name="grade_level_id" id="gradeLevel" class="form-select" required onchange="updateSections()">
                                         <option value="">Select Grade Level</option>
-                                        @foreach($gradeLevels as $level)
-                                            <option value="{{ $level->id }}" {{ old('grade_level_id') == $level->id ? 'selected' : '' }}>{{ $level->name }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $gradeLevels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $level): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($level->id); ?>" <?php echo e(old('grade_level_id') == $level->id ? 'selected' : ''); ?>><?php echo e($level->name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="form-label">Pupil Type <span class="required">*</span></label>
                                     <select name="type" id="studentType" class="form-select" required onchange="toggleStudentTypeFields()">
-                                        <option value="new" {{ old('type') == 'new' ? 'selected' : '' }}>New Pupil</option>
-                                        <option value="transferee" {{ old('type') == 'transferee' ? 'selected' : '' }}>Transferee</option>
-                                        <option value="continuing" {{ old('type') == 'continuing' ? 'selected' : '' }}>Continuing</option>
+                                        <option value="new" <?php echo e(old('type') == 'new' ? 'selected' : ''); ?>>New Pupil</option>
+                                        <option value="transferee" <?php echo e(old('type') == 'transferee' ? 'selected' : ''); ?>>Transferee</option>
+                                        <option value="continuing" <?php echo e(old('type') == 'continuing' ? 'selected' : ''); ?>>Continuing</option>
                                     </select>
                                 </div>
                             </div>
@@ -512,9 +512,16 @@
                                     <select name="section_id" id="sectionId" class="form-select" required>
                                         <option value="">Select Section</option>
                                     </select>
-                                    @error('section_id')
-                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <?php $__errorArgs = ['section_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <p class="text-red-500 text-xs mt-1"><?php echo e($message); ?></p>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -523,7 +530,7 @@
                                 <div class="flex items-center gap-4">
                                     <span class="text-sm font-semibold text-slate-700">1. With LRN?</span>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="has_lrn" value="1" id="hasLrnYes" class="custom-radio" onchange="toggleLrnField()" {{ old('has_lrn') == '1' ? 'checked' : '' }}>
+                                        <input type="radio" name="has_lrn" value="1" id="hasLrnYes" class="custom-radio" onchange="toggleLrnField()" <?php echo e(old('has_lrn') == '1' ? 'checked' : ''); ?>>
                                         <span class="text-sm text-slate-600">Yes</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
@@ -534,7 +541,7 @@
                                 <div class="flex items-center gap-4">
                                     <span class="text-sm font-semibold text-slate-700">2. Returning (Balik-Aral)?</span>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="is_returning_balik_aral" value="1" id="isBalikAralYes" class="custom-radio" onchange="toggleReturningSection()" {{ old('is_returning_balik_aral') == '1' ? 'checked' : '' }}>
+                                        <input type="radio" name="is_returning_balik_aral" value="1" id="isBalikAralYes" class="custom-radio" onchange="toggleReturningSection()" <?php echo e(old('is_returning_balik_aral') == '1' ? 'checked' : ''); ?>>
                                         <span class="text-sm text-slate-600">Yes</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
@@ -546,7 +553,7 @@
                         </div>
                     </div>
 
-                    @php
+                    <?php
                     $sectionsJson = $sections->map(function($s) {
                         return [
                             'id' => $s->id,
@@ -556,7 +563,7 @@
                             'student_count' => $s->students_count
                         ];
                     })->toJson();
-                    @endphp
+                    ?>
 
                     <!-- ========== SECTION 2: LEARNER INFORMATION ========== -->
                     <div>
@@ -568,12 +575,12 @@
                                 <div>
                                     <label class="form-label">PSA Birth Certificate No. (if available)</label>
                                     <input type="text" name="psa_birth_cert_no" placeholder="XXX-XXXX-XXXXXX"
-                                           value="{{ old('psa_birth_cert_no') }}" class="form-input">
+                                           value="<?php echo e(old('psa_birth_cert_no')); ?>" class="form-input">
                                 </div>
                                 <div id="lrnFieldContainer">
                                     <label class="form-label">Learner Reference No. (LRN) <span id="lrnRequired" class="required hidden">*</span></label>
                                     <input type="text" name="lrn_suffix" id="lrnInput" maxlength="12" placeholder="12-digit LRN"
-                                           value="{{ old('lrn_suffix') }}"
+                                           value="<?php echo e(old('lrn_suffix')); ?>"
                                            class="form-input font-mono tracking-wider"
                                            disabled>
                                     <p class="input-hint" id="lrnHelper">Select "Yes" for "With LRN?" to enable this field</p>
@@ -585,27 +592,27 @@
                                 <div>
                                     <label class="form-label">Last Name <span class="required">*</span></label>
                                     <input type="text" name="last_name" placeholder="DELA CRUZ" required
-                                           value="{{ old('last_name') }}" class="form-input">
+                                           value="<?php echo e(old('last_name')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">First Name <span class="required">*</span></label>
                                     <input type="text" name="first_name" placeholder="JUAN" required
-                                           value="{{ old('first_name') }}" class="form-input">
+                                           value="<?php echo e(old('first_name')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Middle Name</label>
                                     <input type="text" name="middle_name" placeholder="SANTOS"
-                                           value="{{ old('middle_name') }}" class="form-input">
+                                           value="<?php echo e(old('middle_name')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Extension (Jr., III, etc.)</label>
                                     <select name="suffix" class="form-select">
-                                        <option value="" {{ old('suffix') == '' ? 'selected' : '' }}>None</option>
-                                        <option value="Jr." {{ old('suffix') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                        <option value="Sr." {{ old('suffix') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                        <option value="II" {{ old('suffix') == 'II' ? 'selected' : '' }}>II</option>
-                                        <option value="III" {{ old('suffix') == 'III' ? 'selected' : '' }}>III</option>
-                                        <option value="IV" {{ old('suffix') == 'IV' ? 'selected' : '' }}>IV</option>
+                                        <option value="" <?php echo e(old('suffix') == '' ? 'selected' : ''); ?>>None</option>
+                                        <option value="Jr." <?php echo e(old('suffix') == 'Jr.' ? 'selected' : ''); ?>>Jr.</option>
+                                        <option value="Sr." <?php echo e(old('suffix') == 'Sr.' ? 'selected' : ''); ?>>Sr.</option>
+                                        <option value="II" <?php echo e(old('suffix') == 'II' ? 'selected' : ''); ?>>II</option>
+                                        <option value="III" <?php echo e(old('suffix') == 'III' ? 'selected' : ''); ?>>III</option>
+                                        <option value="IV" <?php echo e(old('suffix') == 'IV' ? 'selected' : ''); ?>>IV</option>
                                     </select>
                                 </div>
                             </div>
@@ -615,12 +622,12 @@
                                 <div>
                                     <label class="form-label">Birthdate (mm/dd/yyyy) <span class="required">*</span></label>
                                     <input type="date" name="birthday" required
-                                           value="{{ old('birthday') }}" class="form-input">
+                                           value="<?php echo e(old('birthday')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Place of Birth (Municipality/City) <span class="required">*</span></label>
                                     <input type="text" name="birth_place" placeholder="DUMAGUETE CITY" required
-                                           value="{{ old('birth_place') }}" class="form-input">
+                                           value="<?php echo e(old('birth_place')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Age</label>
@@ -635,11 +642,11 @@
                                     <label class="form-label">Sex <span class="required">*</span></label>
                                     <div class="flex gap-4 mt-2">
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="radio" name="gender" value="Male" class="custom-radio" {{ old('gender') == 'Male' ? 'checked' : '' }} required>
+                                            <input type="radio" name="gender" value="Male" class="custom-radio" <?php echo e(old('gender') == 'Male' ? 'checked' : ''); ?> required>
                                             <span class="text-sm text-slate-600">Male</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="radio" name="gender" value="Female" class="custom-radio" {{ old('gender') == 'Female' ? 'checked' : '' }} required>
+                                            <input type="radio" name="gender" value="Female" class="custom-radio" <?php echo e(old('gender') == 'Female' ? 'checked' : ''); ?> required>
                                             <span class="text-sm text-slate-600">Female</span>
                                         </label>
                                     </div>
@@ -647,7 +654,7 @@
                                 <div class="md:col-span-2">
                                     <label class="form-label">Mother Tongue <span class="required">*</span></label>
                                     <input type="text" name="mother_tongue" placeholder="CEBUANO" required
-                                           value="{{ old('mother_tongue') }}" class="form-input">
+                                           value="<?php echo e(old('mother_tongue')); ?>" class="form-input">
                                 </div>
                             </div>
 
@@ -658,11 +665,11 @@
                                         <label class="form-label">Belonging to any Indigenous Peoples (IP) Community/Indigenous Cultural Community?</label>
                                         <div class="flex gap-4 mt-1">
                                             <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="is_ip" value="1" class="custom-radio" onchange="toggleIpField()" {{ old('is_ip') == '1' ? 'checked' : '' }}>
+                                                <input type="radio" name="is_ip" value="1" class="custom-radio" onchange="toggleIpField()" <?php echo e(old('is_ip') == '1' ? 'checked' : ''); ?>>
                                                 <span class="text-sm text-slate-600">Yes</span>
                                             </label>
                                             <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="is_ip" value="0" class="custom-radio" onchange="toggleIpField()" {{ old('is_ip') != '1' ? 'checked' : '' }}>
+                                                <input type="radio" name="is_ip" value="0" class="custom-radio" onchange="toggleIpField()" <?php echo e(old('is_ip') != '1' ? 'checked' : ''); ?>>
                                                 <span class="text-sm text-slate-600">No</span>
                                             </label>
                                         </div>
@@ -670,7 +677,7 @@
                                     <div class="flex-1" id="ipSpecificationField">
                                         <label class="form-label">If Yes, please specify:</label>
                                         <input type="text" name="ip_specification" placeholder="e.g., Subanon, Manobo"
-                                               value="{{ old('ip_specification') }}" class="form-input" disabled>
+                                               value="<?php echo e(old('ip_specification')); ?>" class="form-input" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -682,11 +689,11 @@
                                         <label class="form-label">Is your family a beneficiary of 4Ps?</label>
                                         <div class="flex gap-4 mt-1">
                                             <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="is_4ps_beneficiary" value="1" class="custom-radio" onchange="toggle4psField()" {{ old('is_4ps_beneficiary') == '1' ? 'checked' : '' }}>
+                                                <input type="radio" name="is_4ps_beneficiary" value="1" class="custom-radio" onchange="toggle4psField()" <?php echo e(old('is_4ps_beneficiary') == '1' ? 'checked' : ''); ?>>
                                                 <span class="text-sm text-slate-600">Yes</span>
                                             </label>
                                             <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="is_4ps_beneficiary" value="0" class="custom-radio" onchange="toggle4psField()" {{ old('is_4ps_beneficiary') != '1' ? 'checked' : '' }}>
+                                                <input type="radio" name="is_4ps_beneficiary" value="0" class="custom-radio" onchange="toggle4psField()" <?php echo e(old('is_4ps_beneficiary') != '1' ? 'checked' : ''); ?>>
                                                 <span class="text-sm text-slate-600">No</span>
                                             </label>
                                         </div>
@@ -694,7 +701,7 @@
                                     <div class="flex-1" id="householdIdField">
                                         <label class="form-label">If Yes, write the 4Ps Household ID Number:</label>
                                         <input type="text" name="household_id_4ps" placeholder="XXXXXXXXXXXX"
-                                               value="{{ old('household_id_4ps') }}" class="form-input font-mono tracking-wider" disabled>
+                                               value="<?php echo e(old('household_id_4ps')); ?>" class="form-input font-mono tracking-wider" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -704,17 +711,17 @@
                                 <div>
                                     <label class="form-label">Nationality <span class="required">*</span></label>
                                     <input type="text" name="nationality" placeholder="FILIPINO" required
-                                           value="{{ old('nationality', 'Filipino') }}" class="form-input">
+                                           value="<?php echo e(old('nationality', 'Filipino')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Religion <span class="required">*</span></label>
                                     <input type="text" name="religion" placeholder="ROMAN CATHOLIC" required
-                                           value="{{ old('religion', 'Roman Catholic') }}" class="form-input">
+                                           value="<?php echo e(old('religion', 'Roman Catholic')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Ethnicity <span class="required">*</span></label>
                                     <input type="text" name="ethnicity" placeholder="e.g., CEBUANO, TAGALOG" required
-                                           value="{{ old('ethnicity') }}" class="form-input">
+                                           value="<?php echo e(old('ethnicity')); ?>" class="form-input">
                                 </div>
                             </div>
                         </div>
@@ -728,29 +735,29 @@
                                 <div>
                                     <label class="form-label">House No./Street <span class="required">*</span></label>
                                     <input type="text" name="street_address" placeholder="123 Purok 1" required
-                                           value="{{ old('street_address') }}" class="form-input">
+                                           value="<?php echo e(old('street_address')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Street Name</label>
                                     <input type="text" name="street_name" placeholder="MABINI STREET"
-                                           value="{{ old('street_name') }}" class="form-input">
+                                           value="<?php echo e(old('street_name')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Barangay <span class="required">*</span></label>
                                     <input type="text" name="barangay" placeholder="TUGAWE" required
-                                           value="{{ old('barangay') }}" class="form-input">
+                                           value="<?php echo e(old('barangay')); ?>" class="form-input">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                                 <div>
                                     <label class="form-label">Municipality/City <span class="required">*</span></label>
                                     <input type="text" name="city" placeholder="DAUIN" required
-                                           value="{{ old('city') }}" class="form-input">
+                                           value="<?php echo e(old('city')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Province <span class="required">*</span></label>
                                     <input type="text" name="province" placeholder="NEGROS ORIENTAL" required
-                                           value="{{ old('province') }}" class="form-input">
+                                           value="<?php echo e(old('province')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Country</label>
@@ -760,7 +767,7 @@
                                 <div>
                                     <label class="form-label">Zip Code <span class="required">*</span></label>
                                     <input type="text" name="zip_code" placeholder="6217" maxlength="4" required
-                                           value="{{ old('zip_code') }}" class="form-input font-mono">
+                                           value="<?php echo e(old('zip_code')); ?>" class="form-input font-mono">
                                 </div>
                             </div>
                         </div>
@@ -787,29 +794,29 @@
                                 <div>
                                     <label class="form-label">House No./Street</label>
                                     <input type="text" name="permanent_street_address" placeholder="123 Purok 1"
-                                           value="{{ old('permanent_street_address') }}" class="form-input">
+                                           value="<?php echo e(old('permanent_street_address')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Street Name</label>
                                     <input type="text" name="permanent_street_name" placeholder="MABINI STREET"
-                                           value="{{ old('permanent_street_name') }}" class="form-input">
+                                           value="<?php echo e(old('permanent_street_name')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Barangay</label>
                                     <input type="text" name="permanent_barangay" placeholder="TUGAWE"
-                                           value="{{ old('permanent_barangay') }}" class="form-input">
+                                           value="<?php echo e(old('permanent_barangay')); ?>" class="form-input">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                                 <div>
                                     <label class="form-label">Municipality/City</label>
                                     <input type="text" name="permanent_city" placeholder="DAUIN"
-                                           value="{{ old('permanent_city') }}" class="form-input">
+                                           value="<?php echo e(old('permanent_city')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Province</label>
                                     <input type="text" name="permanent_province" placeholder="NEGROS ORIENTAL"
-                                           value="{{ old('permanent_province') }}" class="form-input">
+                                           value="<?php echo e(old('permanent_province')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Country</label>
@@ -819,7 +826,7 @@
                                 <div>
                                     <label class="form-label">Zip Code</label>
                                     <input type="text" name="permanent_zip_code" placeholder="6217" maxlength="4"
-                                           value="{{ old('permanent_zip_code') }}" class="form-input font-mono">
+                                           value="<?php echo e(old('permanent_zip_code')); ?>" class="form-input font-mono">
                                 </div>
                             </div>
                         </div>
@@ -837,28 +844,28 @@
                                     <div>
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="father_last_name" placeholder="DELA CRUZ"
-                                               value="{{ old('father_last_name') }}" class="form-input">
+                                               value="<?php echo e(old('father_last_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">First Name</label>
                                         <input type="text" name="father_first_name" placeholder="JUAN"
-                                               value="{{ old('father_first_name') }}" class="form-input">
+                                               value="<?php echo e(old('father_first_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Middle Name</label>
                                         <input type="text" name="father_middle_name" placeholder="SANTOS"
-                                               value="{{ old('father_middle_name') }}" class="form-input">
+                                               value="<?php echo e(old('father_middle_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Contact Number</label>
                                         <input type="tel" name="father_contact" maxlength="11" placeholder="09XXXXXXXXX"
-                                               value="{{ old('father_contact') }}" class="form-input font-mono">
+                                               value="<?php echo e(old('father_contact')); ?>" class="form-input font-mono">
                                     </div>
                                 </div>
                                 <div class="mt-2">
                                     <label class="form-label">Occupation</label>
                                     <input type="text" name="father_occupation" placeholder="e.g., FARMER, TEACHER"
-                                           value="{{ old('father_occupation') }}" class="form-input md:w-1/2">
+                                           value="<?php echo e(old('father_occupation')); ?>" class="form-input md:w-1/2">
                                 </div>
                             </div>
 
@@ -869,28 +876,28 @@
                                     <div>
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="mother_last_name" placeholder="GARCIA"
-                                               value="{{ old('mother_last_name') }}" class="form-input">
+                                               value="<?php echo e(old('mother_last_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">First Name</label>
                                         <input type="text" name="mother_first_name" placeholder="MARIA"
-                                               value="{{ old('mother_first_name') }}" class="form-input">
+                                               value="<?php echo e(old('mother_first_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Middle Name</label>
                                         <input type="text" name="mother_middle_name" placeholder="REYES"
-                                               value="{{ old('mother_middle_name') }}" class="form-input">
+                                               value="<?php echo e(old('mother_middle_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Contact Number</label>
                                         <input type="tel" name="mother_contact" maxlength="11" placeholder="09XXXXXXXXX"
-                                               value="{{ old('mother_contact') }}" class="form-input font-mono">
+                                               value="<?php echo e(old('mother_contact')); ?>" class="form-input font-mono">
                                     </div>
                                 </div>
                                 <div class="mt-2">
                                     <label class="form-label">Occupation</label>
                                     <input type="text" name="mother_occupation" placeholder="e.g., HOUSEWIFE, NURSE"
-                                           value="{{ old('mother_occupation') }}" class="form-input md:w-1/2">
+                                           value="<?php echo e(old('mother_occupation')); ?>" class="form-input md:w-1/2">
                                 </div>
                             </div>
 
@@ -901,22 +908,22 @@
                                     <div>
                                         <label class="form-label">Last Name</label>
                                         <input type="text" name="guardian_last_name" placeholder="DELA CRUZ"
-                                               value="{{ old('guardian_last_name') }}" class="form-input">
+                                               value="<?php echo e(old('guardian_last_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">First Name</label>
                                         <input type="text" name="guardian_first_name" placeholder="JUAN"
-                                               value="{{ old('guardian_first_name') }}" class="form-input">
+                                               value="<?php echo e(old('guardian_first_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Middle Name</label>
                                         <input type="text" name="guardian_middle_name" placeholder="SANTOS"
-                                               value="{{ old('guardian_middle_name') }}" class="form-input">
+                                               value="<?php echo e(old('guardian_middle_name')); ?>" class="form-input">
                                     </div>
                                     <div>
                                         <label class="form-label">Contact Number <span class="required">*</span></label>
                                         <input type="tel" name="guardian_contact" id="guardianContact" maxlength="11" placeholder="09XXXXXXXXX" required
-                                               value="{{ old('guardian_contact') }}" class="form-input font-mono">
+                                               value="<?php echo e(old('guardian_contact')); ?>" class="form-input font-mono">
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
@@ -924,17 +931,17 @@
                                         <label class="form-label">Relationship <span class="required">*</span></label>
                                         <select name="guardian_relationship" required class="form-select">
                                             <option value="">Select</option>
-                                            <option value="Parent" {{ old('guardian_relationship') == 'Parent' ? 'selected' : '' }}>Parent</option>
-                                            <option value="Grandparent" {{ old('guardian_relationship') == 'Grandparent' ? 'selected' : '' }}>Grandparent</option>
-                                            <option value="Sibling" {{ old('guardian_relationship') == 'Sibling' ? 'selected' : '' }}>Sibling</option>
-                                            <option value="Relative" {{ old('guardian_relationship') == 'Relative' ? 'selected' : '' }}>Relative</option>
-                                            <option value="Other" {{ old('guardian_relationship') == 'Other' ? 'selected' : '' }}>Other</option>
+                                            <option value="Parent" <?php echo e(old('guardian_relationship') == 'Parent' ? 'selected' : ''); ?>>Parent</option>
+                                            <option value="Grandparent" <?php echo e(old('guardian_relationship') == 'Grandparent' ? 'selected' : ''); ?>>Grandparent</option>
+                                            <option value="Sibling" <?php echo e(old('guardian_relationship') == 'Sibling' ? 'selected' : ''); ?>>Sibling</option>
+                                            <option value="Relative" <?php echo e(old('guardian_relationship') == 'Relative' ? 'selected' : ''); ?>>Relative</option>
+                                            <option value="Other" <?php echo e(old('guardian_relationship') == 'Other' ? 'selected' : ''); ?>>Other</option>
                                         </select>
                                     </div>
                                     <div>
                                         <label class="form-label">Guardian's Full Name (if different from above)</label>
                                         <input type="text" name="guardian_name" placeholder="Full Name for records"
-                                               value="{{ old('guardian_name') }}" class="form-input">
+                                               value="<?php echo e(old('guardian_name')); ?>" class="form-input">
                                     </div>
                                 </div>
                             </div>
@@ -952,24 +959,24 @@
                                 <div>
                                     <label class="form-label">Last Grade Level Completed</label>
                                     <input type="text" name="last_grade_level_completed" placeholder="Grade 3"
-                                           value="{{ old('last_grade_level_completed') }}" class="form-input">
+                                           value="<?php echo e(old('last_grade_level_completed')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Last School Year Completed</label>
                                     <input type="text" name="last_school_year_completed" placeholder="2024-2025"
-                                           value="{{ old('last_school_year_completed') }}" class="form-input">
+                                           value="<?php echo e(old('last_school_year_completed')); ?>" class="form-input">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label class="form-label">Last School Attended</label>
                                     <input type="text" name="previous_school" id="previousSchoolInput" placeholder="Name of previous school"
-                                           value="{{ old('previous_school') }}" class="form-input">
+                                           value="<?php echo e(old('previous_school')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">School ID</label>
                                     <input type="text" name="previous_school_id" placeholder="6-digit School ID"
-                                           value="{{ old('previous_school_id') }}" class="form-input font-mono">
+                                           value="<?php echo e(old('previous_school_id')); ?>" class="form-input font-mono">
                                 </div>
                             </div>
                         </div>
@@ -985,12 +992,12 @@
                                 <div>
                                     <label class="form-label">Username <span class="required">*</span></label>
                                     <input type="text" name="username" placeholder="juan.dela.cruz" required
-                                           value="{{ old('username') }}" class="form-input">
+                                           value="<?php echo e(old('username')); ?>" class="form-input">
                                 </div>
                                 <div>
                                     <label class="form-label">Email <span class="required">*</span></label>
                                     <input type="email" name="email" placeholder="juan@example.com" required
-                                           value="{{ old('email') }}" class="form-input">
+                                           value="<?php echo e(old('email')); ?>" class="form-input">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1137,14 +1144,14 @@
                                 <div>
                                     <label class="form-label">Remark Code</label>
                                     <select name="remarks" class="form-select">
-                                        <option value="" {{ old('remarks') == '' ? 'selected' : '' }}>-- Select Remark --</option>
-                                        <option value="TI" {{ old('remarks') == 'TI' ? 'selected' : '' }}>TI - Transferred In</option>
-                                        <option value="TO" {{ old('remarks') == 'TO' ? 'selected' : '' }}>TO - Transferred Out</option>
-                                        <option value="DO" {{ old('remarks') == 'DO' ? 'selected' : '' }}>DO - Dropped Out</option>
-                                        <option value="LE" {{ old('remarks') == 'LE' ? 'selected' : '' }}>LE - Late Enrollee</option>
-                                        <option value="CCT" {{ old('remarks') == 'CCT' ? 'selected' : '' }}>CCT - CCT Recipient</option>
-                                        <option value="BA" {{ old('remarks') == 'BA' ? 'selected' : '' }}>BA - Balik Aral</option>
-                                        <option value="LWD" {{ old('remarks') == 'LWD' ? 'selected' : '' }}>LWD - Learner With Disability</option>
+                                        <option value="" <?php echo e(old('remarks') == '' ? 'selected' : ''); ?>>-- Select Remark --</option>
+                                        <option value="TI" <?php echo e(old('remarks') == 'TI' ? 'selected' : ''); ?>>TI - Transferred In</option>
+                                        <option value="TO" <?php echo e(old('remarks') == 'TO' ? 'selected' : ''); ?>>TO - Transferred Out</option>
+                                        <option value="DO" <?php echo e(old('remarks') == 'DO' ? 'selected' : ''); ?>>DO - Dropped Out</option>
+                                        <option value="LE" <?php echo e(old('remarks') == 'LE' ? 'selected' : ''); ?>>LE - Late Enrollee</option>
+                                        <option value="CCT" <?php echo e(old('remarks') == 'CCT' ? 'selected' : ''); ?>>CCT - CCT Recipient</option>
+                                        <option value="BA" <?php echo e(old('remarks') == 'BA' ? 'selected' : ''); ?>>BA - Balik Aral</option>
+                                        <option value="LWD" <?php echo e(old('remarks') == 'LWD' ? 'selected' : ''); ?>>LWD - Learner With Disability</option>
                                     </select>
                                 </div>
                                 <div class="flex items-center">
@@ -1162,7 +1169,7 @@
                             Fields marked with <span class="text-red-500">*</span> are required
                         </div>
                         <div class="flex items-center gap-4">
-                            <a href="{{ route('admin.students.index') }}" class="btn-secondary lg:hidden">Cancel</a>
+                            <a href="<?php echo e(route('admin.students.index')); ?>" class="btn-secondary lg:hidden">Cancel</a>
                             <button type="submit" class="btn-primary">
                                 <i class="fas fa-save"></i>
                                 Save Pupil
@@ -1177,8 +1184,8 @@
 
     <script>
         // Sections data from server
-        const allSections = {!! $sectionsJson !!};
-        const oldSectionId = "{{ old('section_id', request('section_id')) }}";
+        const allSections = <?php echo $sectionsJson; ?>;
+        const oldSectionId = "<?php echo e(old('section_id', request('section_id'))); ?>";
 
         function updateSections() {
             const gradeLevelId = document.getElementById('gradeLevel').value;
@@ -1478,4 +1485,4 @@
         });
     </script>
 </body>
-</html>
+</html><?php /**PATH C:\Program Files\Ampps\www\projects\capstone\tugaweesms-main\resources\views/admin/students/create.blade.php ENDPATH**/ ?>

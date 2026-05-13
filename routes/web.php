@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [AuthenticatedSessionController::class, 'create']);
+Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('landing');
 
 // CSRF Token refresh endpoint (for preventing 419 errors)
 Route::get('/csrf-token', function () {
@@ -36,6 +36,13 @@ Route::get('/password-expired', function () {
 Route::get('/signing-in', function () {
     return view('auth.signing-in');
 })->middleware('web')->name('auth.signing-in');
+
+
+
+use App\Http\Controllers\Auth\RegisteredUserController;
+// NEW: Standalone registration page for new/transferee pupils
+Route::get('/register-page', [RegisteredUserController::class, 'showRegistrationPage'])
+    ->name('register.page');
 
 // Student Lookup API (requires authentication - removed from public to prevent LRN brute force)
 Route::middleware(['auth'])->get('/api/students/lookup', [App\Http\Controllers\Api\StudentController::class, 'lookupByLrn']);

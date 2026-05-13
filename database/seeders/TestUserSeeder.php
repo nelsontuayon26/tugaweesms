@@ -61,15 +61,19 @@ class TestUserSeeder extends Seeder
             'role_id' => $studentRole->id
         ]);
 
-        Student::firstOrCreate([
-            'user_id' => $studentUser->id
-        ], [
-            'lrn' => '123456789012',
-            'birthdate' => '2015-01-15',
-            'gender' => 'Male',
-            'nationality' => 'Filipino',
-            'religion' => 'Roman Catholic',
-            'status' => 'active'
-        ]);
+Student::firstOrCreate([
+    'user_id' => $studentUser->id
+], [
+    'first_name' => $studentUser->first_name,
+    'middle_name' => $studentUser->middle_name,
+    'last_name' => $studentUser->last_name,
+    'suffix' => $studentUser->suffix,
+    'lrn' => '123456789012',
+    'birthdate' => '2015-01-15',
+    'gender' => 'Male',
+    'nationality' => 'Filipino',
+    'religion' => 'Roman Catholic',
+    'status' => 'active'
+]);
     }
 }

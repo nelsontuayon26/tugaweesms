@@ -539,13 +539,7 @@
                                                 <span class="tooltip">Reset Password</span>
                                             </button>
 
-                                            <!-- Delete Button (Icon Only) -->
-                                            <button type="button" 
-                                                    onclick="openDeleteModal('{{ route('admin.users.destroy', $user) }}', '{{ $user->first_name }} {{ $user->last_name }}')"
-                                                    class="action-btn w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 border border-red-200 hover:border-red-300">
-                                                <i class="fa-regular fa-trash-can text-sm"></i>
-                                                <span class="tooltip">Delete User</span>
-                                            </button>
+                                        
                                         </div>
                                     </td>
                                 </tr>

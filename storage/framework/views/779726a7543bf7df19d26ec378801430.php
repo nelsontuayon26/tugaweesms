@@ -1,10 +1,10 @@
-﻿@extends('layouts.admin')
+﻿
 
-@section('title', 'School Year Management')
+<?php $__env->startSection('title', 'School Year Management'); ?>
 
-@section('header-title', 'School Year Management')
+<?php $__env->startSection('header-title', 'School Year Management'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
     .glass-card {
         background: white;
@@ -35,53 +35,53 @@
             </div>
 
             <!-- Alerts -->
-            @if(session('success'))
+            <?php if(session('success')): ?>
             <div class="mb-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-start gap-4 animate-fade-in-up">
                 <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
                 </div>
                 <div class="flex-1">
                     <h3 class="font-bold text-emerald-900 text-lg">Success</h3>
-                    <p class="text-emerald-700">{{ session('success') }}</p>
+                    <p class="text-emerald-700"><?php echo e(session('success')); ?></p>
                 </div>
                 <button onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-emerald-600 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            @endif
+            <?php endif; ?>
 
-            @if(session('error'))
+            <?php if(session('error')): ?>
             <div class="mb-6 bg-rose-50 border border-rose-200 rounded-2xl p-5 flex items-start gap-4 animate-fade-in-up">
                 <div class="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-exclamation-circle text-rose-600 text-xl"></i>
                 </div>
                 <div class="flex-1">
                     <h3 class="font-bold text-rose-900 text-lg">Error</h3>
-                    <p class="text-rose-700">{{ session('error') }}</p>
+                    <p class="text-rose-700"><?php echo e(session('error')); ?></p>
                 </div>
                 <button onclick="this.parentElement.remove()" class="text-rose-400 hover:text-rose-600 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            @endif
+            <?php endif; ?>
 
-            @if(session('warning'))
+            <?php if(session('warning')): ?>
             <div class="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-4 animate-fade-in-up">
                 <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
                 </div>
                 <div class="flex-1">
                     <h3 class="font-bold text-amber-900 text-lg">Warning</h3>
-                    <p class="text-amber-700">{{ session('warning') }}</p>
+                    <p class="text-amber-700"><?php echo e(session('warning')); ?></p>
                 </div>
                 <button onclick="this.parentElement.remove()" class="text-amber-400 hover:text-amber-600 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Active School Year & QR Code Section -->
-            @if(session('qr_code') && isset($activeSchoolYear))
+            <?php if(session('qr_code') && isset($activeSchoolYear)): ?>
             <div class="glass-card rounded-3xl p-8 mb-8 animate-fade-in-up">
                 <div class="flex flex-col lg:flex-row items-start justify-between gap-4 mb-8">
                     <div class="flex items-center gap-4">
@@ -89,7 +89,7 @@
                             <i class="fas fa-qrcode text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-slate-900">{{ $activeSchoolYear->name }}</h3>
+                            <h3 class="text-2xl font-bold text-slate-900"><?php echo e($activeSchoolYear->name); ?></h3>
                             <p class="text-sm text-slate-500">Enrollment QR Code Generated</p>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                 <div class="flex flex-col xl:flex-row items-start gap-8">
                     <!-- QR Code Image -->
                     <div class="flex-shrink-0 bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200">
-                        <img src="{{ Storage::url(session('qr_code')->qr_code_image_path) }}" 
+                        <img src="<?php echo e(Storage::url(session('qr_code')->qr_code_image_path)); ?>" 
                              alt="Enrollment QR Code" 
                              class="w-56 h-56 object-contain">
                     </div>
@@ -116,9 +116,10 @@
                             </p>
                             <div class="flex gap-3">
                                 <code class="flex-1 bg-slate-800 text-emerald-400 px-4 py-3.5 rounded-xl text-sm break-all font-mono min-w-0">
-                                    {{ route('admin.enrollment.form.qr', ['token' => session('qr_code')->qr_code_token]) }}
+                                    <?php echo e(route('admin.enrollment.form.qr', ['token' => session('qr_code')->qr_code_token])); ?>
+
                                 </code>
-                                <button onclick="copyToClipboard('{{ route('admin.enrollment.form.qr', ['token' => session('qr_code')->qr_code_token]) }}', this)" 
+                                <button onclick="copyToClipboard('<?php echo e(route('admin.enrollment.form.qr', ['token' => session('qr_code')->qr_code_token])); ?>', this)" 
                                         class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 font-semibold whitespace-nowrap"
                                         title="Copy URL">
                                     <i class="fas fa-copy"></i>
@@ -128,14 +129,14 @@
                         </div>
                         
                         <div class="flex flex-wrap gap-3">
-                            <a href="{{ route('admin.school-year.download-qr', session('qr_code')) }}" 
+                            <a href="<?php echo e(route('admin.school-year.download-qr', session('qr_code'))); ?>" 
                                class="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5">
                                 <i class="fas fa-download mr-2"></i>Download QR
                             </a>
                             
-                            <form action="{{ route('admin.school-year.regenerate-qr') }}" method="POST" class="inline">
-                                @csrf
-                                <input type="hidden" name="school_year_id" value="{{ $activeSchoolYear->id }}">
+                            <form action="<?php echo e(route('admin.school-year.regenerate-qr')); ?>" method="POST" class="inline">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="school_year_id" value="<?php echo e($activeSchoolYear->id); ?>">
                                 <button type="submit" 
                                         class="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
                                         onclick="return confirm('Regenerate QR code? Old QR codes will be invalidated.')">
@@ -169,7 +170,7 @@
                     </div>
                 </div>
             </div>
-            @elseif(isset($activeSchoolYear) && $activeSchoolYear->qrCode)
+            <?php elseif(isset($activeSchoolYear) && $activeSchoolYear->qrCode): ?>
             <!-- Show existing QR code if school year is active but page was refreshed -->
             <div class="glass-card rounded-3xl p-8 mb-8 animate-fade-in-up">
                 <div class="flex flex-col lg:flex-row items-start justify-between gap-4 mb-8">
@@ -178,7 +179,7 @@
                             <i class="fas fa-qrcode text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-slate-900">{{ $activeSchoolYear->name }}</h3>
+                            <h3 class="text-2xl font-bold text-slate-900"><?php echo e($activeSchoolYear->name); ?></h3>
                             <p class="text-sm text-slate-500">Existing QR Code</p>
                         </div>
                     </div>
@@ -190,7 +191,7 @@
                 
                 <div class="flex flex-col xl:flex-row items-start gap-8">
                     <div class="flex-shrink-0 bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200">
-                        <img src="{{ Storage::url($activeSchoolYear->qrCode->qr_code_image_path) }}" 
+                        <img src="<?php echo e(Storage::url($activeSchoolYear->qrCode->qr_code_image_path)); ?>" 
                              alt="Enrollment QR Code" 
                              class="w-56 h-56 object-contain">
                     </div>
@@ -203,9 +204,10 @@
                             </p>
                             <div class="flex gap-3">
                                 <code class="flex-1 bg-slate-800 text-emerald-400 px-4 py-3.5 rounded-xl text-sm break-all font-mono min-w-0">
-                                    {{ route('admin.enrollment.form.qr', ['token' => $activeSchoolYear->qrCode->qr_code_token]) }}
+                                    <?php echo e(route('admin.enrollment.form.qr', ['token' => $activeSchoolYear->qrCode->qr_code_token])); ?>
+
                                 </code>
-                                <button onclick="copyToClipboard('{{ route('admin.enrollment.form.qr', ['token' => $activeSchoolYear->qrCode->qr_code_token]) }}', this)" 
+                                <button onclick="copyToClipboard('<?php echo e(route('admin.enrollment.form.qr', ['token' => $activeSchoolYear->qrCode->qr_code_token])); ?>', this)" 
                                         class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2 font-semibold whitespace-nowrap"
                                         title="Copy URL">
                                     <i class="fas fa-copy"></i>
@@ -215,14 +217,14 @@
                         </div>
                         
                         <div class="flex flex-wrap gap-3">
-                            <a href="{{ route('admin.school-year.download-qr', $activeSchoolYear->qrCode) }}" 
+                            <a href="<?php echo e(route('admin.school-year.download-qr', $activeSchoolYear->qrCode)); ?>" 
                                class="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5">
                                 <i class="fas fa-download mr-2"></i>Download QR
                             </a>
                             
-                            <form action="{{ route('admin.school-year.regenerate-qr') }}" method="POST" class="inline">
-                                @csrf
-                                <input type="hidden" name="school_year_id" value="{{ $activeSchoolYear->id }}">
+                            <form action="<?php echo e(route('admin.school-year.regenerate-qr')); ?>" method="POST" class="inline">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="school_year_id" value="<?php echo e($activeSchoolYear->id); ?>">
                                 <button type="submit" 
                                         class="inline-flex items-center px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
                                         onclick="return confirm('Regenerate QR code? Old QR codes will be invalidated.')">
@@ -245,19 +247,19 @@
                     </div>
                 </div>
             </div>
-            @elseif(isset($activeSchoolYear))
+            <?php elseif(isset($activeSchoolYear)): ?>
             <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 animate-fade-in-up">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-amber-900 text-lg">Active School Year: {{ $activeSchoolYear->name }}</h3>
+                        <h3 class="font-bold text-amber-900 text-lg">Active School Year: <?php echo e($activeSchoolYear->name); ?></h3>
                         <p class="text-amber-700">No QR code generated yet. Generate one to enable student enrollment.</p>
                     </div>
-                    <form action="{{ route('admin.school-year.regenerate-qr') }}" method="POST" class="inline">
-                        @csrf
-                        <input type="hidden" name="school_year_id" value="{{ $activeSchoolYear->id }}">
+                    <form action="<?php echo e(route('admin.school-year.regenerate-qr')); ?>" method="POST" class="inline">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="school_year_id" value="<?php echo e($activeSchoolYear->id); ?>">
                         <button type="submit" 
                                 class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5 whitespace-nowrap"
                                 onclick="return confirm('Generate QR code for enrollment?')">
@@ -266,7 +268,7 @@
                     </form>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
             <!-- School Years List -->
             <div class="glass-card rounded-3xl overflow-hidden animate-fade-in-up" style="animation-delay: 0.1s;">
@@ -278,12 +280,12 @@
                         <h3 class="font-bold text-xl text-slate-900">All School Years</h3>
                     </div>
                    <div class="flex gap-3">
-                @if($activeSchoolYear)
-                <a href="{{ route('admin.school-year.closure') }}" 
+                <?php if($activeSchoolYear): ?>
+                <a href="<?php echo e(route('admin.school-year.closure')); ?>" 
                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-rose-500/30 hover:shadow-xl hover:-translate-y-0.5">
                     <i class="fas fa-calendar-check mr-2"></i>Closure Dashboard
                 </a>
-                @endif
+                <?php endif; ?>
                 </div>
             </div>
             
@@ -299,8 +301,8 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
-                            @forelse($schoolYears as $year)
-                            @php
+                            <?php $__empty_1 = true; $__currentLoopData = $schoolYears; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
                                 $yearData = json_encode([
                                     'id' => $year->id,
                                     'name' => $year->name,
@@ -319,67 +321,68 @@
                                     ];
                                 }
                                 $quartersJson = json_encode($quartersData);
-                            @endphp
-                            <tr data-year='{{ $yearData }}'
+                            ?>
+                            <tr data-year='<?php echo e($yearData); ?>'
                                 onclick="selectYear(this)"
-                                class="transition-all group cursor-pointer hover:bg-slate-50/80 {{ $year->closure && $year->closure->status === 'closed' ? 'bg-gray-50/50' : '' }}"
-                                id="year-row-{{ $year->id }}">
+                                class="transition-all group cursor-pointer hover:bg-slate-50/80 <?php echo e($year->closure && $year->closure->status === 'closed' ? 'bg-gray-50/50' : ''); ?>"
+                                id="year-row-<?php echo e($year->id); ?>">
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center text-blue-600 font-bold text-sm">
-                                            {{ substr($year->name, 0, 2) }}
+                                            <?php echo e(substr($year->name, 0, 2)); ?>
+
                                         </div>
-                                        <span class="font-semibold text-slate-900">{{ $year->name }}</span>
+                                        <span class="font-semibold text-slate-900"><?php echo e($year->name); ?></span>
                                     </div>
                                 </td>
-                                <td class="px-8 py-5 text-slate-600">{{ $year->start_date->format('M d, Y') }}</td>
-                                <td class="px-8 py-5 text-slate-600">{{ optional($year->end_date)->format('M d, Y') ?? 'â€”' }}</td>
+                                <td class="px-8 py-5 text-slate-600"><?php echo e($year->start_date->format('M d, Y')); ?></td>
+                                <td class="px-8 py-5 text-slate-600"><?php echo e(optional($year->end_date)->format('M d, Y') ?? 'â€”'); ?></td>
                                 <td class="px-8 py-5">
-                                    @if($year->is_active)
+                                    <?php if($year->is_active): ?>
                                         <span class="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-bold shadow-sm">
                                             <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
                                             ACTIVE
                                         </span>
-                                    @elseif($year->closure && $year->closure->status === 'closed')
+                                    <?php elseif($year->closure && $year->closure->status === 'closed'): ?>
                                         <span class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-bold shadow-sm">
                                             <i class="fas fa-lock mr-2 text-gray-500"></i>
                                             CLOSED
                                         </span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-medium">
                                             Inactive
                                         </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="px-8 py-5">
                                     <div class="flex items-center gap-2">
-                                        @if(!$year->is_active && !($year->closure && $year->closure->status === 'closed'))
-                                        <form action="{{ route('admin.school-year.start') }}" method="POST" class="inline" @click.stop>
-                                            @csrf
-                                            <input type="hidden" name="school_year_id" value="{{ $year->id }}">
+                                        <?php if(!$year->is_active && !($year->closure && $year->closure->status === 'closed')): ?>
+                                        <form action="<?php echo e(route('admin.school-year.start')); ?>" method="POST" class="inline" @click.stop>
+                                            <?php echo csrf_field(); ?>
+                                            <input type="hidden" name="school_year_id" value="<?php echo e($year->id); ?>">
                                             <button type="submit" 
                                                     class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5"
                                                     onclick="return confirm('Start this school year? This will generate a QR code for enrollment.')">
                                                 <i class="fas fa-play mr-2"></i>Start
                                             </button>
                                         </form>
-                                        @elseif($year->closure && $year->closure->status === 'closed')
+                                        <?php elseif($year->closure && $year->closure->status === 'closed'): ?>
                                         <span class="text-gray-400 text-sm italic flex items-center gap-2">
                                             <i class="fas fa-lock text-gray-500"></i>
                                             Closed — view in Reports
                                         </span>
-                                        @else
+                                        <?php else: ?>
                                         <span class="text-slate-400 text-sm italic flex items-center gap-2">
                                             <i class="fas fa-check-circle text-emerald-500"></i>
                                             Active
                                         </span>
-                                        @endif
+                                        <?php endif; ?>
                                         
-                                        {{-- Manage Quarters Button --}}
+                                        
                                         <button type="button"
-                                                data-year-id="{{ $year->id }}"
-                                                data-year-name="{{ $year->name }}"
-                                                data-quarters="{{ $quartersJson }}"
+                                                data-year-id="<?php echo e($year->id); ?>"
+                                                data-year-name="<?php echo e($year->name); ?>"
+                                                data-quarters="<?php echo e($quartersJson); ?>"
                                                 onclick="event.stopPropagation(); handleQuartersClick(this);"
                                                 style="color:#2563eb;border-color:#2563eb;"
                                                 class="inline-flex items-center px-3 py-2 bg-white border-2 text-sm font-bold rounded-xl transition-all hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:scale-95"
@@ -392,7 +395,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="5" class="px-8 py-16 text-center">
                                     <div class="flex flex-col items-center gap-4">
@@ -403,23 +406,24 @@
                                             <p class="text-slate-500 font-medium text-lg">No school years found</p>
                                             <p class="text-slate-400 text-sm mt-1">Create your first school year to get started</p>
                                         </div>
-                                        <a href="{{ route('admin.school-years.create') }}" 
+                                        <a href="<?php echo e(route('admin.school-years.create')); ?>" 
                                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-500/30 mt-2 hover:shadow-xl hover:-translate-y-0.5">
                                             <i class="fas fa-plus mr-2"></i>Create School Year
                                         </a>
                                     </div>
                                 </td>
                             </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
                 
-                @if($schoolYears->hasPages())
+                <?php if($schoolYears->hasPages()): ?>
                 <div class="px-8 py-5 border-t border-slate-200 bg-slate-50/50">
-                    {{ $schoolYears->links() }}
+                    <?php echo e($schoolYears->links()); ?>
+
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
     </div>
 
@@ -448,8 +452,8 @@
     <div id="createModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50">
         <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-bold mb-6 text-center">Create School Year</h2>
-            <form action="{{ route('admin.school-years.store') }}" method="POST" class="space-y-4">
-                @csrf
+            <form action="<?php echo e(route('admin.school-years.store')); ?>" method="POST" class="space-y-4">
+                <?php echo csrf_field(); ?>
                 <div>
                     <label for="name" class="block font-medium mb-1">Name</label>
                     <input type="text" name="name" id="name" placeholder="e.g., 2026-2027"
@@ -492,8 +496,8 @@
         <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-bold mb-6 text-center">Edit School Year</h2>
             <form id="editForm" action="#" method="POST" class="space-y-4">
-                @csrf
-                @method('PUT')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PUT'); ?>
                 <div>
                     <label class="block font-medium mb-1">Name</label>
                     <input type="text" name="name" id="editName"
@@ -538,20 +542,20 @@
                 <p class="text-slate-600 mt-1">Copy all sections from a previous school year into the active year.</p>
             </div>
 
-            <form action="{{ route('admin.school-year.carry-forward-sections') }}" method="POST" class="space-y-4">
-                @csrf
-                <input type="hidden" name="target_school_year_id" value="{{ $activeSchoolYear?->id }}">
+            <form action="<?php echo e(route('admin.school-year.carry-forward-sections')); ?>" method="POST" class="space-y-4">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="target_school_year_id" value="<?php echo e($activeSchoolYear?->id); ?>">
 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Copy sections from which school year?</label>
                     <select name="source_school_year_id" required
                             class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white">
                         <option value="">Select a school year...</option>
-                        @foreach($schoolYears as $year)
-                            @if($year->id !== ($activeSchoolYear?->id))
-                                <option value="{{ $year->id }}">{{ $year->name }}</option>
-                            @endif
-                        @endforeach
+                        <?php $__currentLoopData = $schoolYears; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if($year->id !== ($activeSchoolYear?->id)): ?>
+                                <option value="<?php echo e($year->id); ?>"><?php echo e($year->name); ?></option>
+                            <?php endif; ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -604,7 +608,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-bold text-rose-900">End School Year</h3>
-                            <p class="text-sm text-rose-600">{{ $activeSchoolYear?->name ?? 'Current School Year' }}</p>
+                            <p class="text-sm text-rose-600"><?php echo e($activeSchoolYear?->name ?? 'Current School Year'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -713,7 +717,7 @@
                                 <p class="text-sm text-amber-800 font-medium mb-1">SF9 Finalization Required</p>
                                 <p class="text-sm text-amber-700">
                                     All teachers must finalize grades, attendance, and core values before the school year can end.
-                                    Please visit the <a href="{{ route('admin.school-year.closure') }}" class="font-semibold underline">Closure Dashboard</a> for details.
+                                    Please visit the <a href="<?php echo e(route('admin.school-year.closure')); ?>" class="font-semibold underline">Closure Dashboard</a> for details.
                                 </p>
                             </div>
                         </div>
@@ -724,7 +728,7 @@
                                 class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">
                             Close
                         </button>
-                        <a href="{{ route('admin.school-year.closure') }}" 
+                        <a href="<?php echo e(route('admin.school-year.closure')); ?>" 
                            class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold rounded-xl transition-all text-center">
                             <i class="fas fa-tasks mr-2"></i>View Closure Dashboard
                         </a>
@@ -738,7 +742,7 @@
     <!-- Quarters Management Modal -->
     <div id="quartersModal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full mx-auto transform transition-all max-h-[90vh] overflow-hidden flex flex-col">
-            {{-- Header --}}
+            
             <div class="p-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
@@ -756,11 +760,11 @@
                 </div>
             </div>
             
-            {{-- Scrollable Body --}}
+            
             <form id="quartersForm" method="POST" class="flex-1 flex flex-col min-h-0">
-                @csrf
+                <?php echo csrf_field(); ?>
                 <div class="flex-1 overflow-y-auto p-3 space-y-2" id="quartersFormBody">
-                    {{-- Quarter cards generated by JS --}}
+                    
                 </div>
                 
                 <div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 flex-shrink-0">
@@ -871,13 +875,13 @@
             
             // Create form data
             const formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            @if($activeSchoolYear)
-            formData.append('school_year_id', '{{ $activeSchoolYear->id }}');
-            @endif
+            formData.append('_token', '<?php echo e(csrf_token()); ?>');
+            <?php if($activeSchoolYear): ?>
+            formData.append('school_year_id', '<?php echo e($activeSchoolYear->id); ?>');
+            <?php endif; ?>
             
             // Submit via fetch
-            fetch('{{ route('admin.school-year.end') }}', {
+            fetch('<?php echo e(route('admin.school-year.end')); ?>', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -953,7 +957,7 @@
 
         function openQuartersModal(schoolYearId, schoolYearName, existingQuarters) {
             document.getElementById('quartersModalSyName').textContent = schoolYearName;
-            document.getElementById('quartersForm').action = '{{ url('admin/school-year') }}/' + schoolYearId + '/quarters';
+            document.getElementById('quartersForm').action = '<?php echo e(url('admin/school-year')); ?>/' + schoolYearId + '/quarters';
             
             const container = document.getElementById('quartersFormBody');
             container.innerHTML = '';
@@ -1124,7 +1128,7 @@
             document.getElementById('editStartDate').value = selectedYear.start_date;
             document.getElementById('editEndDate').value = selectedYear.end_date;
             document.getElementById('editDescription').value = selectedYear.description || '';
-            document.getElementById('editForm').action = '{{ url('admin/school-years') }}/' + selectedYear.id;
+            document.getElementById('editForm').action = '<?php echo e(url('admin/school-years')); ?>/' + selectedYear.id;
             document.getElementById('editModal').classList.remove('hidden');
         }
 
@@ -1135,7 +1139,7 @@
         function confirmDelete() {
             if (!selectedYear) return;
             if (confirm('Are you sure you want to delete "' + selectedYear.name + '"?')) {
-                document.getElementById('deleteForm').action = '{{ url('admin/school-years') }}/' + selectedYear.id;
+                document.getElementById('deleteForm').action = '<?php echo e(url('admin/school-years')); ?>/' + selectedYear.id;
                 document.getElementById('deleteForm').submit();
             }
         }
@@ -1159,5 +1163,7 @@
             if (e.target === this) closeCarryForwardModal();
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Program Files\Ampps\www\projects\capstone\tugaweesms-main\resources\views/admin/school-years/index.blade.php ENDPATH**/ ?>
