@@ -30,6 +30,7 @@ class Student extends Model
         'guardian_relationship',
         'guardian_contact',
         'street_address',
+        'street_name',
         'barangay',
         'city',
         'province',

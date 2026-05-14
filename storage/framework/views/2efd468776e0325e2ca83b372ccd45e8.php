@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Form 9 (SF9) - Learner's Progress Report Card</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
@@ -392,7 +392,7 @@
 </button>
 
 <div class="flex">
-    @include('student.includes.sidebar')
+    <?php echo $__env->make('student.includes.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <main class="w-full min-h-screen p-6 transition-all duration-300 ease-out lg:ml-72">
 
@@ -400,7 +400,7 @@
         <div class="mb-6 flex items-center justify-between no-print">
             <div>
                 <nav class="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                    <a href="{{ route('student.dashboard') }}" class="hover:text-blue-900 transition-colors">Dashboard</a>
+                    <a href="<?php echo e(route('student.dashboard')); ?>" class="hover:text-blue-900 transition-colors">Dashboard</a>
                     <i class="fas fa-chevron-right text-xs"></i>
                     <span class="text-blue-900 font-medium">SF9 - Progress Report Card</span>
                 </nav>
@@ -408,11 +408,11 @@
                 <p class="text-sm text-gray-500">Learner's Progress Report Card</p>
             </div>
             <div class="text-right">
-                <p class="text-sm font-semibold text-gray-700">{{ $schoolYear }}</p>
+                <p class="text-sm font-semibold text-gray-700"><?php echo e($schoolYear); ?></p>
             </div>
         </div>
 
-        @php
+        <?php
             $user = $selectedStudent->user;
             $section = $selectedStudent->section;
             $gradeLevel = $section->gradeLevel ?? null;
@@ -422,44 +422,45 @@
                 $now = \Carbon\Carbon::now();
                 $age = $birth->diffInYears($now);
             }
-        @endphp
+        ?>
 
-        {{-- Active Quarter Indicator --}}
-        @if($currentQuarter)
+        
+        <?php if($currentQuarter): ?>
         <div class="max-w-[11in] mx-auto mb-3">
             <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <div class="w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
-                        Q{{ $currentQuarter->quarter_number }}
+                        Q<?php echo e($currentQuarter->quarter_number); ?>
+
                     </div>
                     <div>
-                        <span class="text-sm font-semibold text-slate-800">{{ $currentQuarter->display_name }}</span>
-                        <span class="text-xs text-slate-500 ml-2">{{ $currentQuarter->start_date?->format('M d') }} — {{ $currentQuarter->end_date?->format('M d, Y') }}</span>
+                        <span class="text-sm font-semibold text-slate-800"><?php echo e($currentQuarter->display_name); ?></span>
+                        <span class="text-xs text-slate-500 ml-2"><?php echo e($currentQuarter->start_date?->format('M d')); ?> — <?php echo e($currentQuarter->end_date?->format('M d, Y')); ?></span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="inline-flex items-center px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold uppercase tracking-wide">
                         <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 animate-pulse"></span>Ongoing
                     </span>
-                    @if($currentQuarter->progress_percent)
+                    <?php if($currentQuarter->progress_percent): ?>
                     <div class="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: {{ $currentQuarter->progress_percent }}%"></div>
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: <?php echo e($currentQuarter->progress_percent); ?>%"></div>
                     </div>
-                    <span class="text-[10px] font-semibold text-slate-500 w-6">{{ $currentQuarter->progress_percent }}%</span>
-                    @endif
+                    <span class="text-[10px] font-semibold text-slate-500 w-6"><?php echo e($currentQuarter->progress_percent); ?>%</span>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
 
         <div class="overflow-x-auto pb-4">
         <div class="sf9-container">
         
-        @if($isKindergarten)
+        <?php if($isKindergarten): ?>
             <!-- KINDERGARTEN LAYOUT -->
             <div class="sf9-main">
                 <div class="sf9-left">
-                    @php
+                    <?php
                     $kinderConfig = config('kindergarten.domains');
                     $ratingScale = config('kindergarten.rating_scale');
                     $getKinderRating = function($domainKey, $indicatorKey, $quarter) use ($kindergartenDomains) {
@@ -470,69 +471,70 @@
                         $record = $indicatorData->firstWhere('quarter', $quarter);
                         return $record ? $record->rating : '';
                     };
-                    @endphp
+                    ?>
                     
-                    <div class="section-title-left">{{ $lang == 'cebuano' ? 'Report sa Kalambuan sa Bata' : 'Developmental Progress Report' }}</div>
-                    @foreach($kinderConfig as $domainKey => $domainData)
+                    <div class="section-title-left"><?php echo e($lang == 'cebuano' ? 'Report sa Kalambuan sa Bata' : 'Developmental Progress Report'); ?></div>
+                    <?php $__currentLoopData = $kinderConfig; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $domainKey => $domainData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div style="border: 1px solid #000; margin-bottom: 4px;">
                         <div style="background: #f3f4f6; padding: 3px 6px; border-bottom: 1px solid #000; font-size: 8pt; font-weight: bold; text-transform: uppercase;">
-                            {{ $domainData['name'][$lang] ?? $domainData['name']['cebuano'] }}
+                            <?php echo e($domainData['name'][$lang] ?? $domainData['name']['cebuano']); ?>
+
                         </div>
                         <table class="sf9-table" style="font-size: 7.5pt;">
                             <thead>
                                 <tr style="background: #f9fafb;">
-                                    <th style="width: 50%; text-align: left; padding-left: 6px;">{{ $lang == 'cebuano' ? 'Mga Tigpasiunod' : 'Indicators' }}</th>
+                                    <th style="width: 50%; text-align: left; padding-left: 6px;"><?php echo e($lang == 'cebuano' ? 'Mga Tigpasiunod' : 'Indicators'); ?></th>
                                     <th style="width: 12.5%;">1</th><th style="width: 12.5%;">2</th><th style="width: 12.5%;">3</th><th style="width: 12.5%;">4</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(isset($domainData['indicators']))
-                                    @foreach($domainData['indicators'] as $indicatorKey => $indicatorData)
+                                <?php if(isset($domainData['indicators'])): ?>
+                                    <?php $__currentLoopData = $domainData['indicators']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $indicatorKey => $indicatorData): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr>
-                                        <td style="font-size: 7pt; text-align: left; padding: 3px 6px;">{{ $indicatorData[$lang] ?? $indicatorData['cebuano'] }}</td>
-                                        <td style="font-weight: bold;">{{ $getKinderRating($domainKey, $indicatorKey, 1) }}</td>
-                                        <td style="font-weight: bold;">{{ $getKinderRating($domainKey, $indicatorKey, 2) }}</td>
-                                        <td style="font-weight: bold;">{{ $getKinderRating($domainKey, $indicatorKey, 3) }}</td>
-                                        <td style="font-weight: bold;">{{ $getKinderRating($domainKey, $indicatorKey, 4) }}</td>
+                                        <td style="font-size: 7pt; text-align: left; padding: 3px 6px;"><?php echo e($indicatorData[$lang] ?? $indicatorData['cebuano']); ?></td>
+                                        <td style="font-weight: bold;"><?php echo e($getKinderRating($domainKey, $indicatorKey, 1)); ?></td>
+                                        <td style="font-weight: bold;"><?php echo e($getKinderRating($domainKey, $indicatorKey, 2)); ?></td>
+                                        <td style="font-weight: bold;"><?php echo e($getKinderRating($domainKey, $indicatorKey, 3)); ?></td>
+                                        <td style="font-weight: bold;"><?php echo e($getKinderRating($domainKey, $indicatorKey, 4)); ?></td>
                                     </tr>
-                                    @endforeach
-                                @endif
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     
                     <div style="border: 1px solid #000; padding: 5px;">
-                        <div class="section-title" style="margin-top:0; border-bottom: 1px solid #000; padding-bottom: 2px;">{{ $lang == 'cebuano' ? 'Rating Scale' : 'Rating Scale' }}</div>
+                        <div class="section-title" style="margin-top:0; border-bottom: 1px solid #000; padding-bottom: 2px;"><?php echo e($lang == 'cebuano' ? 'Rating Scale' : 'Rating Scale'); ?></div>
                         <table class="grading-scale-table">
-                            <tr><td style="width: 15%; text-align: center; font-weight: bold;">B</td><td><strong>{{ $ratingScale['B']['label'][$lang] ?? $ratingScale['B']['label']['cebuano'] }}</strong> - {{ $ratingScale['B']['description'][$lang] ?? $ratingScale['B']['description']['cebuano'] }}</td></tr>
-                            <tr><td style="text-align: center; font-weight: bold;">D</td><td><strong>{{ $ratingScale['D']['label'][$lang] ?? $ratingScale['D']['label']['cebuano'] }}</strong> - {{ $ratingScale['D']['description'][$lang] ?? $ratingScale['D']['description']['cebuano'] }}</td></tr>
-                            <tr><td style="text-align: center; font-weight: bold;">C</td><td><strong>{{ $ratingScale['C']['label'][$lang] ?? $ratingScale['C']['label']['cebuano'] }}</strong> - {{ $ratingScale['C']['description'][$lang] ?? $ratingScale['C']['description']['cebuano'] }}</td></tr>
+                            <tr><td style="width: 15%; text-align: center; font-weight: bold;">B</td><td><strong><?php echo e($ratingScale['B']['label'][$lang] ?? $ratingScale['B']['label']['cebuano']); ?></strong> - <?php echo e($ratingScale['B']['description'][$lang] ?? $ratingScale['B']['description']['cebuano']); ?></td></tr>
+                            <tr><td style="text-align: center; font-weight: bold;">D</td><td><strong><?php echo e($ratingScale['D']['label'][$lang] ?? $ratingScale['D']['label']['cebuano']); ?></strong> - <?php echo e($ratingScale['D']['description'][$lang] ?? $ratingScale['D']['description']['cebuano']); ?></td></tr>
+                            <tr><td style="text-align: center; font-weight: bold;">C</td><td><strong><?php echo e($ratingScale['C']['label'][$lang] ?? $ratingScale['C']['label']['cebuano']); ?></strong> - <?php echo e($ratingScale['C']['description'][$lang] ?? $ratingScale['C']['description']['cebuano']); ?></td></tr>
                         </table>
                     </div>
                 </div>
                 
                 <div class="sf9-right">
                     <div class="sf9-header" style="border-bottom: 2px solid #000; padding-bottom: 6px;">
-                        <img src="{{ asset('images/edukasyon.jpg') }}" alt="DepEd Logo" class="logo">
+                        <img src="<?php echo e(asset('images/edukasyon.jpg')); ?>" alt="DepEd Logo" class="logo">
                         <div class="header-center">
                             <p>Republic of the Philippines</p>
                             <p style="font-weight:bold;">Department of Education</p>
-                            <p>{{ $schoolRegion ?? 'Region ______' }}</p>
-                            <p>Division of {{ $schoolDivision ?? '____________________' }}</p>
-                            <p>District of {{ $schoolDistrict ?? '__________' }}</p>
-                            <p class="school-name">{{ $schoolName ?? 'SCHOOL NAME' }}</p>
+                            <p><?php echo e($schoolRegion ?? 'Region ______'); ?></p>
+                            <p>Division of <?php echo e($schoolDivision ?? '____________________'); ?></p>
+                            <p>District of <?php echo e($schoolDistrict ?? '__________'); ?></p>
+                            <p class="school-name"><?php echo e($schoolName ?? 'SCHOOL NAME'); ?></p>
                             <p class="report-title">Progress Report Card</p>
-                            <p class="school-year">School Year {{ $schoolYear }}</p>
+                            <p class="school-year">School Year <?php echo e($schoolYear); ?></p>
                         </div>
-                        <img src="{{ asset('images/logo.png') }}" alt="School Logo" class="logo">
+                        <img src="<?php echo e(asset('images/logo.png')); ?>" alt="School Logo" class="logo">
                     </div>
                     
                     <div class="student-info-box">
-                        <div class="info-row"><span class="label">Name:</span><span class="value">{{ $user->last_name ?? '' }}, {{ $user->first_name ?? '' }} {{ $user->middle_name ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">Age:</span><span class="value" style="flex:0 0 50px;">{{ is_numeric($age) ? floor($age) : '' }}</span><span class="label" style="margin-left:10px;">Sex:</span><span class="value" style="flex:0 0 60px;">{{ $selectedStudent->gender ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">Grade:</span><span class="value" style="flex:0 0 80px;">{{ $gradeLevel->name ?? '' }}</span><span class="label" style="margin-left:10px;">Section:</span><span class="value" style="flex:0 0 80px;">{{ $section->name ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">LRN:</span><span class="value">{{ $selectedStudent->lrn ?? '' }}</span></div>
+                        <div class="info-row"><span class="label">Name:</span><span class="value"><?php echo e($user->last_name ?? ''); ?>, <?php echo e($user->first_name ?? ''); ?> <?php echo e($user->middle_name ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">Age:</span><span class="value" style="flex:0 0 50px;"><?php echo e(is_numeric($age) ? floor($age) : ''); ?></span><span class="label" style="margin-left:10px;">Sex:</span><span class="value" style="flex:0 0 60px;"><?php echo e($selectedStudent->gender ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">Grade:</span><span class="value" style="flex:0 0 80px;"><?php echo e($gradeLevel->name ?? ''); ?></span><span class="label" style="margin-left:10px;">Section:</span><span class="value" style="flex:0 0 80px;"><?php echo e($section->name ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">LRN:</span><span class="value"><?php echo e($selectedStudent->lrn ?? ''); ?></span></div>
                     </div>
                     
                     <div class="dear-parent">
@@ -542,32 +544,32 @@
                     </div>
                     
                     <div class="teacher-sig">
-                        <p class="name">{{ $adviserName ?? '' }}</p>
+                        <p class="name"><?php echo e($adviserName ?? ''); ?></p>
                         <p class="title">Teacher</p>
                     </div>
                     
                     <div style="border: 1px solid #000; padding: 6px; margin-top: 6px;">
                         <p style="font-size: 8pt; line-height: 1.3;">
-                            @if($lang == 'cebuano')
-                                Gipasabot niini nga si <strong>{{ $user->first_name ?? '' }} {{ $user->middle_name ?? '' }} {{ $user->last_name ?? '' }}</strong> sa <strong>{{ $section->name ?? '' }}</strong> niini nga tulunghaan, nakalampos sa Kindergarten Curriculum Guide.
-                            @else
-                                This certifies that <strong>{{ $user->first_name ?? '' }} {{ $user->middle_name ?? '' }} {{ $user->last_name ?? '' }}</strong> of <strong>{{ $section->name ?? '' }}</strong> has completed the Kindergarten Curriculum Guide.
-                            @endif
+                            <?php if($lang == 'cebuano'): ?>
+                                Gipasabot niini nga si <strong><?php echo e($user->first_name ?? ''); ?> <?php echo e($user->middle_name ?? ''); ?> <?php echo e($user->last_name ?? ''); ?></strong> sa <strong><?php echo e($section->name ?? ''); ?></strong> niini nga tulunghaan, nakalampos sa Kindergarten Curriculum Guide.
+                            <?php else: ?>
+                                This certifies that <strong><?php echo e($user->first_name ?? ''); ?> <?php echo e($user->middle_name ?? ''); ?> <?php echo e($user->last_name ?? ''); ?></strong> of <strong><?php echo e($section->name ?? ''); ?></strong> has completed the Kindergarten Curriculum Guide.
+                            <?php endif; ?>
                         </p>
                         <div style="margin-top: 8px; display: flex; justify-content: space-between;">
                             <div style="text-align: center;">
-                                <p style="font-weight: bold; text-transform: uppercase; font-size: 8pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;">{{ $adviserName ?? '' }}</p>
-                                <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;">{{ $lang == 'cebuano' ? 'Magtutudlo' : 'Teacher' }}</p>
+                                <p style="font-weight: bold; text-transform: uppercase; font-size: 8pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;"><?php echo e($adviserName ?? ''); ?></p>
+                                <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;"><?php echo e($lang == 'cebuano' ? 'Magtutudlo' : 'Teacher'); ?></p>
                             </div>
                             <div style="text-align: center;">
-                                <p style="font-weight: bold; text-transform: uppercase; font-size: 8pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;">{{ $schoolHead ?? '' }}</p>
+                                <p style="font-weight: bold; text-transform: uppercase; font-size: 8pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;"><?php echo e($schoolHead ?? ''); ?></p>
                                 <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;">Principal</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        @else
+        <?php else: ?>
             <!-- GRADES 1-6 LAYOUT -->
             <div class="sf9-main">
                 <!-- LEFT COLUMN -->
@@ -575,7 +577,7 @@
                     
                     <!-- Report on Learner's Observed Values -->
                     <div class="section-title-left">Report on Learner's Observed Values</div>
-                    @php
+                    <?php
                     $coreValueOrder = ['Maka-Diyos', 'Makatao', 'Maka-Kalikasan', 'Maka-bansa'];
                     $sortedCoreValues = collect($coreValueOrder)->mapWithKeys(function($cv) use ($coreValues) {
                         return $coreValues->has($cv) ? [$cv => $coreValues[$cv]] : [];
@@ -598,7 +600,7 @@
                         if (!$statementData || $statementData->isEmpty()) return '';
                         return $statementData->first()->behavior_statement ?? '';
                     };
-                    @endphp
+                    ?>
                          <table class="sf9-table core-values-table">
                         <thead>
                             <tr>
@@ -614,26 +616,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $cvNum = 1; @endphp
-                            @foreach($sortedCoreValues as $coreValue => $statements)
-                                @php $statementKeys = $statements->keys()->sort()->values(); @endphp
-                                @foreach($statementKeys as $idx => $statementKey)
+                            <?php $cvNum = 1; ?>
+                            <?php $__currentLoopData = $sortedCoreValues; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $coreValue => $statements): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $statementKeys = $statements->keys()->sort()->values(); ?>
+                                <?php $__currentLoopData = $statementKeys; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $statementKey): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    @if($idx === 0)
-                                        <td rowspan="{{ $statementKeys->count() }}" style="font-weight: bold; font-size: 7pt; vertical-align: middle; text-align: center;">{{ $cvNum }}. {{ $coreValue }}</td>
-                                    @endif
-                                    <td style="font-size: 6.5pt; text-align: left; line-height: 1.2; vertical-align: middle; padding: 3px 6px;">{{ $getBehaviorStatement($coreValue, $statementKey) }}</td>
-                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;">{{ $getCoreValueRating($coreValue, $statementKey, 1) }}</td>
-                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;">{{ $getCoreValueRating($coreValue, $statementKey, 2) }}</td>
-                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;">{{ $getCoreValueRating($coreValue, $statementKey, 3) }}</td>
-                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;">{{ $getCoreValueRating($coreValue, $statementKey, 4) }}</td>
+                                    <?php if($idx === 0): ?>
+                                        <td rowspan="<?php echo e($statementKeys->count()); ?>" style="font-weight: bold; font-size: 7pt; vertical-align: middle; text-align: center;"><?php echo e($cvNum); ?>. <?php echo e($coreValue); ?></td>
+                                    <?php endif; ?>
+                                    <td style="font-size: 6.5pt; text-align: left; line-height: 1.2; vertical-align: middle; padding: 3px 6px;"><?php echo e($getBehaviorStatement($coreValue, $statementKey)); ?></td>
+                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;"><?php echo e($getCoreValueRating($coreValue, $statementKey, 1)); ?></td>
+                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;"><?php echo e($getCoreValueRating($coreValue, $statementKey, 2)); ?></td>
+                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;"><?php echo e($getCoreValueRating($coreValue, $statementKey, 3)); ?></td>
+                                    <td style="font-weight: bold; vertical-align: middle; text-align: center;"><?php echo e($getCoreValueRating($coreValue, $statementKey, 4)); ?></td>
                                 </tr>
-                                @endforeach
-                                @php $cvNum++; @endphp
-                            @endforeach
-                            @if($sortedCoreValues->isEmpty())
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php $cvNum++; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php if($sortedCoreValues->isEmpty()): ?>
                                 <tr><td colspan="6" style="text-align: center; padding: 6px; color: #666;">No core values records found.</td></tr>
-                            @endif
+                            <?php endif; ?>
                         </tbody>
                     </table>
                     <div style="font-size: 6.5pt; margin-top: 3px; text-align: center;">
@@ -643,9 +645,9 @@
                     <!-- Parent/Guardian's Signature -->
                     <div class="section-title-left" style="margin-top: 4px;">Parent/Guardian's Signature</div>
                     <div class="parent-sig-grid">
-                        @foreach(['First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter'] as $quarter)
-                        <div class="sig-box"><div class="line"></div><div class="label">{{ $quarter }}</div></div>
-                        @endforeach
+                        <?php $__currentLoopData = ['First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $quarter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="sig-box"><div class="line"></div><div class="label"><?php echo e($quarter); ?></div></div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                     
                     <!-- Certificates pushed to bottom -->
@@ -667,11 +669,11 @@
                                 </div>
                                 <div style="display: flex; justify-content: space-between; margin-top: 6px;">
                                     <div style="text-align: center;">
-                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;">{{ $adviserName ?? '' }}</p>
+                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;"><?php echo e($adviserName ?? ''); ?></p>
                                         <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;">Adviser</p>
                                     </div>
                                     <div style="text-align: center;">
-                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;">{{ $schoolHead ?? '' }}</p>
+                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;"><?php echo e($schoolHead ?? ''); ?></p>
                                         <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;">Principal</p>
                                     </div>
                                 </div>
@@ -688,7 +690,7 @@
                                 </div>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
                                     <div style="text-align: center;">
-                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;">{{ $schoolHead ?? '' }}</p>
+                                        <p style="font-weight: bold; text-transform: uppercase; font-size: 7.5pt; margin: 0; border-bottom: 1px solid #000; padding-bottom: 2px; line-height: 1.1;"><?php echo e($schoolHead ?? ''); ?></p>
                                         <p style="font-size: 7.5pt; margin: 0; line-height: 1.1;">Principal</p>
                                     </div>
                                 </div>
@@ -701,26 +703,26 @@
                 <div class="sf9-right">
                     <!-- Header with Logos -->
                     <div class="sf9-header" style="border-bottom: 2px solid #000; padding-bottom: 6px;">
-                        <img src="{{ asset('images/edukasyon.jpg') }}" alt="DepEd Logo" class="logo">
+                        <img src="<?php echo e(asset('images/edukasyon.jpg')); ?>" alt="DepEd Logo" class="logo">
                         <div class="header-center">
                             <p>Republic of the Philippines</p>
                             <p style="font-weight:bold;">Department of Education</p>
-                            <p>{{ $schoolRegion ?? 'Region ______' }}</p>
-                            <p>Division of {{ $schoolDivision ?? '____________________' }}</p>
-                            <p>District of {{ $schoolDistrict ?? '__________' }}</p>
-                            <p class="school-name">{{ $schoolName ?? 'SCHOOL NAME' }}</p>
+                            <p><?php echo e($schoolRegion ?? 'Region ______'); ?></p>
+                            <p>Division of <?php echo e($schoolDivision ?? '____________________'); ?></p>
+                            <p>District of <?php echo e($schoolDistrict ?? '__________'); ?></p>
+                            <p class="school-name"><?php echo e($schoolName ?? 'SCHOOL NAME'); ?></p>
                             <p class="report-title">Progress Report Card</p>
-                            <p class="school-year">School Year {{ $schoolYear }}</p>
+                            <p class="school-year">School Year <?php echo e($schoolYear); ?></p>
                         </div>
-                        <img src="{{ asset('images/logo.png') }}" alt="School Logo" class="logo">
+                        <img src="<?php echo e(asset('images/logo.png')); ?>" alt="School Logo" class="logo">
                     </div>
                     
                     <!-- Student Info -->
                     <div class="student-info-box">
-                        <div class="info-row"><span class="label">Name:</span><span class="value">{{ $user->last_name ?? '' }}, {{ $user->first_name ?? '' }} {{ $user->middle_name ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">Age:</span><span class="value" style="flex:0 0 50px;">{{ is_numeric($age) ? floor($age) : '' }}</span><span class="label" style="margin-left:10px;">Sex:</span><span class="value" style="flex:0 0 60px;">{{ $selectedStudent->gender ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">Grade:</span><span class="value" style="flex:0 0 80px;">{{ $gradeLevel->name ?? '' }}</span><span class="label" style="margin-left:10px;">Section:</span><span class="value" style="flex:0 0 80px;">{{ $section->name ?? '' }}</span></div>
-                        <div class="info-row"><span class="label">LRN:</span><span class="value">{{ $selectedStudent->lrn ?? '' }}</span></div>
+                        <div class="info-row"><span class="label">Name:</span><span class="value"><?php echo e($user->last_name ?? ''); ?>, <?php echo e($user->first_name ?? ''); ?> <?php echo e($user->middle_name ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">Age:</span><span class="value" style="flex:0 0 50px;"><?php echo e(is_numeric($age) ? floor($age) : ''); ?></span><span class="label" style="margin-left:10px;">Sex:</span><span class="value" style="flex:0 0 60px;"><?php echo e($selectedStudent->gender ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">Grade:</span><span class="value" style="flex:0 0 80px;"><?php echo e($gradeLevel->name ?? ''); ?></span><span class="label" style="margin-left:10px;">Section:</span><span class="value" style="flex:0 0 80px;"><?php echo e($section->name ?? ''); ?></span></div>
+                        <div class="info-row"><span class="label">LRN:</span><span class="value"><?php echo e($selectedStudent->lrn ?? ''); ?></span></div>
                     </div>
                     
                     <!-- Dear Parent -->
@@ -732,7 +734,7 @@
                     
                     <!-- Teacher Signature -->
                     <div class="teacher-sig">
-                        <p class="name">{{ $adviserName ?? '' }}</p>
+                        <p class="name"><?php echo e($adviserName ?? ''); ?></p>
                         <p class="title">Teacher</p>
                     </div>
                     
@@ -754,26 +756,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($subjectGrades as $subjectGrade)
+                            <?php $__empty_1 = true; $__currentLoopData = $subjectGrades; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subjectGrade): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr>
-                                <td style="text-align: left; padding-left: 4px; font-size: 7.5pt;">{{ $subjectGrade['subject_name'] }}</td>
-                                <td>{{ $subjectGrade['quarter_1'] ?: '' }}</td>
-                                <td>{{ $subjectGrade['quarter_2'] ?: '' }}</td>
-                                <td>{{ $subjectGrade['quarter_3'] ?: '' }}</td>
-                                <td>{{ $subjectGrade['quarter_4'] ?: '' }}</td>
-                                <td style="font-weight: bold;">{{ $subjectGrade['final_grade'] ?: '' }}</td>
-                                <td>{{ $subjectGrade['remarks'] ?: '' }}</td>
+                                <td style="text-align: left; padding-left: 4px; font-size: 7.5pt;"><?php echo e($subjectGrade['subject_name']); ?></td>
+                                <td><?php echo e($subjectGrade['quarter_1'] ?: ''); ?></td>
+                                <td><?php echo e($subjectGrade['quarter_2'] ?: ''); ?></td>
+                                <td><?php echo e($subjectGrade['quarter_3'] ?: ''); ?></td>
+                                <td><?php echo e($subjectGrade['quarter_4'] ?: ''); ?></td>
+                                <td style="font-weight: bold;"><?php echo e($subjectGrade['final_grade'] ?: ''); ?></td>
+                                <td><?php echo e($subjectGrade['remarks'] ?: ''); ?></td>
                             </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr><td colspan="7" style="padding: 6px; color: #666;">No subjects found.</td></tr>
-                            @endforelse
-                            @if($generalAverage !== null)
+                            <?php endif; ?>
+                            <?php if($generalAverage !== null): ?>
                             <tr style="font-weight: bold; background: #f9fafb;">
                                 <td colspan="5" style="text-align: right; padding-right: 6px;">General Average</td>
-                                <td>{{ $generalAverage }}</td>
-                                <td>{{ $generalAverage >= 75 ? 'Passed' : 'Failed' }}</td>
+                                <td><?php echo e($generalAverage); ?></td>
+                                <td><?php echo e($generalAverage >= 75 ? 'Passed' : 'Failed'); ?></td>
                             </tr>
-                            @endif
+                            <?php endif; ?>
                         </tbody>
                     </table>
                     
@@ -790,7 +792,7 @@
                     <!-- Report on Attendance (at bottom) -->
                     <div style="margin-top: auto;">
                     <div class="section-title" style="margin-top: 0;">Report on Attendance</div>
-                    @php
+                    <?php
                         $months = ['JUN','JUL','AUG','SEP','OCT','NOV','DEC','JAN','FEB','MAR','APR'];
                         $attendanceData = []; $totalPresent = 0; $totalAbsent = 0; $totalLate = 0; $totalSchoolDays = 0;
                         foreach ($months as $month) {
@@ -809,49 +811,49 @@
                             ];
                             $totalPresent += $present; $totalAbsent += $absent; $totalLate += $late; $totalSchoolDays += $schoolDays;
                         }
-                    @endphp
+                    ?>
                     <table class="sf9-table attendance-table">
                         <thead>
                             <tr>
                                 <th style="width: 22%; font-size: 7pt;"></th>
-                                @foreach($months as $month)
-                                    <th style="width: 6%; font-size: 6.5pt; padding: 1px;">{{ $month }}</th>
-                                @endforeach
+                                <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <th style="width: 6%; font-size: 6.5pt; padding: 1px;"><?php echo e($month); ?></th>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 <th style="width: 6%; font-size: 7pt;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td style="text-align: left; font-size: 7pt; padding-left: 4px;">No. of School Days</td>
-                                @foreach($months as $month)<td>{{ $attendanceData[$month]['days'] }}</td>@endforeach
-                                <td style="font-weight: bold;">{{ $totalSchoolDays > 0 ? $totalSchoolDays : '' }}</td>
+                                <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><td><?php echo e($attendanceData[$month]['days']); ?></td><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <td style="font-weight: bold;"><?php echo e($totalSchoolDays > 0 ? $totalSchoolDays : ''); ?></td>
                             </tr>
                             <tr>
                                 <td style="text-align: left; font-size: 7pt; padding-left: 4px;">No. of Days Present</td>
-                                @foreach($months as $month)<td>{{ $attendanceData[$month]['present'] }}</td>@endforeach
-                                <td style="font-weight: bold;">{{ $totalPresent > 0 ? $totalPresent : '' }}</td>
+                                <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><td><?php echo e($attendanceData[$month]['present']); ?></td><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <td style="font-weight: bold;"><?php echo e($totalPresent > 0 ? $totalPresent : ''); ?></td>
                             </tr>
                             <tr>
                                 <td style="text-align: left; font-size: 7pt; padding-left: 4px;">No. of Days Absent</td>
-                                @foreach($months as $month)<td>{{ $attendanceData[$month]['absent'] }}</td>@endforeach
-                                <td style="font-weight: bold;">{{ $totalAbsent > 0 ? $totalAbsent : '' }}</td>
+                                <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><td><?php echo e($attendanceData[$month]['absent']); ?></td><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <td style="font-weight: bold;"><?php echo e($totalAbsent > 0 ? $totalAbsent : ''); ?></td>
                             </tr>
                             <tr>
                                 <td style="text-align: left; font-size: 7pt; padding-left: 4px;">No. of Times Tardy</td>
-                                @foreach($months as $month)<td>{{ $attendanceData[$month]['late'] }}</td>@endforeach
-                                <td style="font-weight: bold;">{{ $totalLate > 0 ? $totalLate : '' }}</td>
+                                <?php $__currentLoopData = $months; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><td><?php echo e($attendanceData[$month]['late']); ?></td><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <td style="font-weight: bold;"><?php echo e($totalLate > 0 ? $totalLate : ''); ?></td>
                             </tr>
                         </tbody>
                     </table>
                     </div>
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
 
             <!-- Footer -->
             <div style="text-align: center; margin-top: 8px; font-size: 7pt; color: #666;">
                 <p><strong>DepEd School Form 9 (SF9)</strong> | Page 1 of 1</p>
-                <p>Generated: {{ now()->format('F d, Y h:i A') }}</p>
+                <p>Generated: <?php echo e(now()->format('F d, Y h:i A')); ?></p>
             </div>
         </div>
         </div>
@@ -860,3 +862,4 @@
 
 </body>
 </html>
+<?php /**PATH C:\Program Files\Ampps\www\projects\capstone\tugaweesms-main\resources\views/student/grades/index.blade.php ENDPATH**/ ?>

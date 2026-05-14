@@ -1251,6 +1251,127 @@
             padding: 2px 8px;
             border-radius: 6px;
         }
+
+
+
+                /* ============================================
+           CREATE PUPIL MATCHING STYLES
+           ============================================ */
+        
+        /* Form Section Header - Gray gradient with teal bottom border */
+        .form-section-header {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 2px solid #cbd5e1;
+            border-bottom: 3px solid #0d9488;
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #1e293b;
+            text-align: center;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        /* Accent variant (teal header) */
+        .form-section-header.accent {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            color: white;
+            border-color: #0f766e;
+        }
+
+        /* Form Section Body - White with border */
+        .form-section-body {
+            border: 2px solid #cbd5e1;
+            border-top: none;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 0 0 0.5rem 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Label */
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.375rem;
+            display: block;
+        }
+
+        /* Form Input */
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        .form-input.bg-slate-100 {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* Custom Radio Button */
+        .custom-radio {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin: 0;
+        }
+        .custom-radio:checked {
+            background-color: #0d9488;
+            border-color: #0d9488;
+        }
+        .custom-radio:checked::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 3px;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+        .custom-radio:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Sub-section divider */
+        .sub-section {
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+        .sub-section:first-child {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
+
+
+                /* SF1 Table Header - Dark Blue DepEd Style */
+        .form-section-header.sf1-blue {
+            background: #1e3a5f;
+            color: white;
+            border: 1px solid #1e3a5f;
+            border-bottom: 3px solid #0d9488;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-800 overflow-x-hidden" x-data="{ mobileOpen: false }" @keydown.escape.window="mobileOpen = false">
@@ -1497,14 +1618,15 @@
                         </div>
                     </div>
 
-                    <!-- SF1 Tab -->
+                          <!-- SF1 Tab -->
                     <div id="sf1" class="tab-content active">
-                        @php
+                                          @php
                             $enrollment = $student->enrollments->first();
                             $sectionName = $enrollment?->section?->name ?? $student->section?->name ?? 'Unassigned';
                             $gradeLevelName = $enrollment?->section?->gradeLevel?->name ?? $student->gradeLevel?->name ?? 'N/A';
                             $schoolYearName = $activeSchoolYear?->name ?? 'N/A';
                             $status = $enrollment?->status ?? 'pending';
+                            $pupilType = $enrollment?->type ?? $student->type ?? 'new';
                             
                             $user = $student->user;
                             $gender = strtoupper($student->gender ?? '');
@@ -1535,107 +1657,236 @@
                             $uploadedDocs = collect($sf1Docs)->whereNotNull('path')->pluck('name')->implode(', ');
                         @endphp
                         
-                        <div class="glass-card p-6 animate-fade-in">
-                            <!-- School Header -->
-                            <div class="grid grid-cols-2 gap-4 mb-4 text-xs">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-20 text-[10px]">School ID:</span>
-                                        <span class="border-b border-black flex-1 px-1 font-mono text-[10px]">{{ $schoolId }}</span>
+                        <div class="animate-fade-in">
+
+                            <!-- ========== SECTION 1: ACADEMIC INFORMATION ========== -->
+                            <div>
+                                <div class="form-section-header">Academic Information</div>
+                                <div class="form-section-body space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                       
+                                        <div>
+                                            <label class="form-label">Pupil Type</label>
+                                            <input type="text" value="{{ ucfirst($pupilType) }}" readonly class="form-input bg-slate-100 text-slate-600 font-semibold">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Status</label>
+                                            <input type="text" value="{{ ucfirst($status) }}" readonly class="form-input bg-slate-100 text-slate-600 font-semibold">
+                                        </div>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-20 text-[10px]">School Name:</span>
-                                        <span class="border-b border-black flex-1 px-1 uppercase font-bold text-[10px]">{{ $schoolName }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-20 text-[10px]">Division:</span>
-                                        <span class="border-b border-black flex-1 px-1 uppercase text-[10px]">{{ $schoolDivision }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-20 text-[10px]">Region:</span>
-                                        <span class="border-b border-black flex-1 px-1 uppercase text-[10px]">{{ $schoolRegion }}</span>
-                                    </div>
-                                </div>
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-24 text-[10px]">School Year:</span>
-                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $schoolYearName }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-24 text-[10px]">Grade Level:</span>
-                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $gradeLevelName }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-24 text-[10px]">Section:</span>
-                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px]">{{ $sectionName }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold w-24 text-[10px]">Status:</span>
-                                        <span class="border-b border-black flex-1 px-1 font-bold text-[10px] capitalize">{{ $status }}</span>
+
+                                  
+
+                                    <!-- Checkboxes row -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-dashed border-slate-300">
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-sm font-semibold text-slate-700">1. With LRN?</span>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" class="custom-radio" {{ $student->has_lrn ? 'checked' : '' }} disabled>
+                                                <span class="text-sm text-slate-600">Yes</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" class="custom-radio" {{ !$student->has_lrn ? 'checked' : '' }} disabled>
+                                                <span class="text-sm text-slate-600">No</span>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-sm font-semibold text-slate-700">2. Returning (Balik-Aral)?</span>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" class="custom-radio" {{ $student->is_returning_balik_aral ? 'checked' : '' }} disabled>
+                                                <span class="text-sm text-slate-600">Yes</span>
+                                            </label>
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="radio" class="custom-radio" {{ !$student->is_returning_balik_aral ? 'checked' : '' }} disabled>
+                                                <span class="text-sm text-slate-600">No</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- SF1 Title -->
-                            <div class="text-center bg-blue-900 text-white font-bold text-[10px] py-2 mb-0 border border-black">
-                                SCHOOL FORM 1 (SF1) SCHOOL REGISTER<br>
-                                <span class="text-[9px] font-normal">(This replaces Form 1, Master List & STS Form 2-Family Background and Profile)</span>
+
+                            <!-- ========== SECTION 2: LEARNER INFORMATION ========== -->
+                            <div>
+                                <div class="form-section-header">Learner Information</div>
+                                <div class="form-section-body space-y-4">
+                                    
+                                    <!-- PSA Birth Cert & LRN row -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="form-label">PSA Birth Certificate No.</label>
+                                            <input type="text" value="{{ $student->psa_birth_cert_no ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                        </div>
+                                       
+                                    </div>
+
+                                   
+
+                                    <!-- IP Community -->
+                                    <div class="sub-section">
+                                        <div class="flex items-start gap-4">
+                                            <div class="flex-1">
+                                                <label class="form-label">Belonging to any Indigenous Peoples (IP) Community?</label>
+                                                <div class="flex gap-4 mt-1">
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="radio" class="custom-radio" {{ $student->is_ip ? 'checked' : '' }} disabled>
+                                                        <span class="text-sm text-slate-600">Yes</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="radio" class="custom-radio" {{ !$student->is_ip ? 'checked' : '' }} disabled>
+                                                        <span class="text-sm text-slate-600">No</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="form-label">If Yes, please specify:</label>
+                                                <input type="text" value="{{ $student->ip_specification ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4Ps -->
+                                    <div class="sub-section">
+                                        <div class="flex items-start gap-4">
+                                            <div class="flex-1">
+                                                <label class="form-label">Is your family a beneficiary of 4Ps?</label>
+                                                <div class="flex gap-4 mt-1">
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="radio" class="custom-radio" {{ $student->is_4ps_beneficiary ? 'checked' : '' }} disabled>
+                                                        <span class="text-sm text-slate-600">Yes</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="radio" class="custom-radio" {{ !$student->is_4ps_beneficiary ? 'checked' : '' }} disabled>
+                                                        <span class="text-sm text-slate-600">No</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="form-label">4Ps Household ID Number:</label>
+                                                <input type="text" value="{{ $student->household_id_4ps ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600 font-mono tracking-wider">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                            
-                            <!-- SF1 Table -->
-                            <table class="sf1-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 3%;">NO.</th>
-                                        <th style="width: 8%;">LRN</th>
-                                        <th style="width: 10%;">NAME</th>
-                                        <th style="width: 6%;">SCHOOL YEAR</th>
-                                        <th style="width: 5%;">STATUS</th>
-                                        <th style="width: 8%;">GRADE & SECTION</th>
-                                        <th style="width: 6%;">ENROLLED SINCE</th>
-                                        <th style="width: 3%;">SEX</th>
-                                        <th style="width: 5%;">BIRTH DATE</th>
-                                        <th style="width: 3%;">AGE</th>
-                                        <th style="width: 5%;">MOTHER TONGUE</th>
-                                        <th style="width: 4%;">IP</th>
-                                        <th style="width: 4%;">RELIGION</th>
-                                        <th style="width: 10%;">ADDRESS</th>
-                                        <th style="width: 7%;">FATHER'S NAME</th>
-                                        <th style="width: 7%;">MOTHER'S NAME</th>
-                                        <th style="width: 7%;">GUARDIAN'S NAME</th>
-                                        <th style="width: 4%;">RELATIONSHIP</th>
-                                        <th style="width: 4%;">CONTACT</th>
-                                        <th style="width: 4%;">REMARKS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="text-center">1</td>
-                                        <td class="font-mono text-[8px]">{{ $student->lrn ?? '' }}</td>
-                                        <td class="text-left uppercase text-[8px]">{{ $fullName }}</td>
-                                        <td class="text-center text-[8px]">{{ $schoolYearName }}</td>
-                                        <td class="text-center text-[8px] capitalize">{{ $status }}</td>
-                                        <td class="text-center text-[8px]">{{ $gradeSection }}</td>
-                                        <td class="text-center text-[8px]">{{ $enrolledSince }}</td>
-                                        <td class="text-center uppercase text-[8px] font-bold">{{ $sexCode }}</td>
-                                        <td class="text-center text-[8px]">{{ $birthDate }}</td>
-                                        <td class="text-center text-[8px] font-bold">{{ $age }}</td>
-                                        <td class="text-center uppercase text-[8px]">{{ $student->mother_tongue ?? '' }}</td>
-                                        <td class="text-center uppercase text-[8px]">{{ $student->ethnicity ?? '' }}</td>
-                                        <td class="text-center text-[8px]">{{ $student->religion ?? '' }}</td>
-                                        <td class="text-left uppercase text-[7px]">{{ $address }}</td>
-                                        <td class="text-left uppercase text-[7px]">{{ $student->father_name ?? '' }}</td>
-                                        <td class="text-left uppercase text-[7px]">{{ $student->mother_name ?? '' }}</td>
-                                        <td class="text-left uppercase text-[7px]">{{ $student->guardian_name ?? '' }}</td>
-                                        <td class="text-center uppercase text-[7px]">{{ $student->guardian_relationship ?? '' }}</td>
-                                        <td class="text-center text-[7px]">{{ $student->guardian_contact ?? '' }}</td>
-                                        <td class="text-center text-[8px] font-semibold">{{ $student->remarks ?? '' }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            
-                            <!-- Documents Section -->
-                            <div class="mt-4">
+
+                           
+
+                            <!-- ========== SECTION 6: FOR RETURNING/TRANSFEREE ========== -->
+                             @if($student->is_returning_balik_aral || $pupilType === 'transferee')
+                            <div>
+                                <div class="form-section-header">
+                                    For Returning Learner (Balik-Aral) and Those Who will Transfer/Move In
+                                    <span class="ml-2 px-2 py-0.5 bg-orange-500 text-white text-xs rounded-full">{{ $pupilType === 'transferee' ? 'Transferee' : 'Balik-Aral' }}</span>
+                                </div>
+                                <div class="form-section-body space-y-3">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="form-label">Last Grade Level Completed</label>
+                                            <input type="text" value="{{ $student->last_grade_level_completed ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Last School Year Completed</label>
+                                            <input type="text" value="{{ $student->last_school_year_completed ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="form-label">Last School Attended</label>
+                                            <input type="text" value="{{ $student->previous_school ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">School ID</label>
+                                            <input type="text" value="{{ $student->previous_school_id ?? 'N/A' }}" readonly class="form-input bg-slate-100 text-slate-600 font-mono">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- ========== SECTION 7: REMARKS ========== -->
+                            <div>
+                                <div class="form-section-header">Remarks</div>
+                                <div class="form-section-body">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="form-label">Remark Code</label>
+                                            <input type="text" value="{{ $student->remarks ? match($student->remarks) {
+                                                'TI' => 'TI - Transferred In',
+                                                'TO' => 'TO - Transferred Out',
+                                                'DO' => 'DO - Dropped Out',
+                                                'LE' => 'LE - Late Enrollee',
+                                                'CCT' => 'CCT - CCT Recipient',
+                                                'BA' => 'BA - Balik Aral',
+                                                'LWD' => 'LWD - Learner With Disability',
+                                                default => $student->remarks
+                                            } : 'None' }}" readonly class="form-input bg-slate-100 text-slate-600">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                                <!-- ========== SF1 TABLE SECTION (RETAINED) ========== -->
+                            <div>
+                                <div class="form-section-header sf1-blue">School Form 1 (SF1) School Register
+                                    <span style="display: block; font-size: 0.75rem; font-weight: 500; color: #94a3b8; text-transform: none; letter-spacing: normal; margin-top: 2px;">(This replaces Form 1, Master List & STS Form 2-Family Background and Profile)</span>
+                                </div>
+                                    <div class="form-section-body">
+                                    <table class="sf1-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 3%;">NO.</th>
+                                                <th style="width: 8%;">LRN</th>
+                                                <th style="width: 10%;">NAME</th>
+                                                <th style="width: 6%;">SCHOOL YEAR</th>
+                                                <th style="width: 5%;">STATUS</th>
+                                                <th style="width: 8%;">GRADE & SECTION</th>
+                                                <th style="width: 6%;">ENROLLED SINCE</th>
+                                                <th style="width: 3%;">SEX</th>
+                                                <th style="width: 5%;">BIRTH DATE</th>
+                                                <th style="width: 3%;">AGE</th>
+                                                <th style="width: 5%;">MOTHER TONGUE</th>
+                                                <th style="width: 4%;">IP</th>
+                                                <th style="width: 4%;">RELIGION</th>
+                                                <th style="width: 10%;">ADDRESS</th>
+                                                <th style="width: 7%;">FATHER'S NAME</th>
+                                                <th style="width: 7%;">MOTHER'S NAME</th>
+                                                <th style="width: 7%;">GUARDIAN'S NAME</th>
+                                                <th style="width: 4%;">RELATIONSHIP</th>
+                                                <th style="width: 4%;">CONTACT</th>
+                                                <th style="width: 4%;">REMARKS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">1</td>
+                                                <td class="font-mono text-[8px]">{{ $student->lrn ?? '' }}</td>
+                                                <td class="text-left uppercase text-[8px]">{{ $fullName }}</td>
+                                                <td class="text-center text-[8px]">{{ $schoolYearName }}</td>
+                                                <td class="text-center text-[8px] capitalize">{{ $status }}</td>
+                                                <td class="text-center text-[8px]">{{ $gradeSection }}</td>
+                                                <td class="text-center text-[8px]">{{ $enrolledSince }}</td>
+                                                <td class="text-center uppercase text-[8px] font-bold">{{ $sexCode }}</td>
+                                                <td class="text-center text-[8px]">{{ $birthDate }}</td>
+                                                <td class="text-center text-[8px] font-bold">{{ $age }}</td>
+                                                <td class="text-center uppercase text-[8px]">{{ $student->mother_tongue ?? '' }}</td>
+                                                <td class="text-center uppercase text-[8px]">{{ $student->ethnicity ?? '' }}</td>
+                                                <td class="text-center text-[8px]">{{ $student->religion ?? '' }}</td>
+                                                <td class="text-left uppercase text-[7px]">{{ $address }}</td>
+                                                <td class="text-left uppercase text-[7px]">{{ $student->father_name ?? '' }}</td>
+                                                <td class="text-left uppercase text-[7px]">{{ $student->mother_name ?? '' }}</td>
+                                                <td class="text-left uppercase text-[7px]">{{ $student->guardian_name ?? '' }}</td>
+                                                <td class="text-center uppercase text-[7px]">{{ $student->guardian_relationship ?? '' }}</td>
+                                                <td class="text-center text-[7px]">{{ $student->guardian_contact ?? '' }}</td>
+                                                <td class="text-center text-[8px] font-semibold">{{ $student->remarks ?? '' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- ========== DOCUMENTS & ATTACHMENTS (RETAINED) ========== -->
+                            <div class="glass-card p-6 mt-6">
                                 <div class="section-header mb-4">
                                     <i class="fas fa-folder-open" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb;"></i>
                                     <h3>Documents & Attachments</h3>
@@ -1688,6 +1939,7 @@
                                     @endforeach
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
